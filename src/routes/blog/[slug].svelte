@@ -1,5 +1,5 @@
-<script context="module">
-	export async function preload({ params, query }) {
+<script context="module" lang="ts">
+	export async function preload({ params }) {
 		// the `slug` parameter is available because
 		// this file is called [slug].svelte
 		const res = await this.fetch(`blog/${params.slug}.json`);
@@ -13,8 +13,8 @@
 	}
 </script>
 
-<script>
-	export let post;
+<script lang="ts">
+	export let post: any;
 </script>
 
 <style>
