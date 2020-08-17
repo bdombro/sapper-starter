@@ -8,11 +8,17 @@
   }
 </script>
 
-<script lang="ts">
-  export let posts: { slug: string; title: string }[]
+<script type="ts">
+  interface Post {
+    title: string
+    slug: string
+    html: string
+  }
+
+  export let posts: Post[] = []
 </script>
 
-<style>
+<style lang="scss">
   ul {
     margin: 0 0 1em 0;
     line-height: 1.5;

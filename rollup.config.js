@@ -33,9 +33,7 @@ export default {
         dev,
         hydratable: true,
         emitCss: true,
-        preprocess: sveltePreprocess({
-          postcss: true,
-        }),
+        preprocess: sveltePreprocess(),
       }),
       resolve({
         browser: true,
@@ -49,11 +47,14 @@ export default {
           extensions: ['.ts', '.js', '.mjs', '.html', '.svelte'],
           babelHelpers: 'runtime',
           exclude: ['node_modules/@babel/**'],
-          // presets: [ // see package.json
-          // 	['@babel/preset-env', {
-          // 		targets: '> 0.25%, not dead'
-          // 	}]
-          // ],
+          presets: [
+            [
+              '@babel/preset-env',
+              {
+                targets: '> 0.25%, not dead',
+              },
+            ],
+          ],
           plugins: [
             '@babel/plugin-syntax-dynamic-import',
             [
@@ -87,9 +88,7 @@ export default {
         generate: 'ssr',
         hydratable: true,
         dev,
-        preprocess: sveltePreprocess({
-          postcss: true,
-        }),
+        preprocess: sveltePreprocess(),
       }),
       resolve({
         dedupe: ['svelte'],
