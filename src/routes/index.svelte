@@ -3,7 +3,6 @@
   figure,
   p {
     text-align: center;
-    margin: 0 auto;
   }
 
   h1 {
@@ -12,7 +11,7 @@
     font-weight: 700;
     margin: 0 0 0.5em 0;
 
-    @media (width >= 480px) {
+    @media (min-width: 480px) {
       font-size: 8em;
     }
   }

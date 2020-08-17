@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Nav from "../components/Nav.svelte";
+  import Nav from '../components/Nav.svelte'
 
-  export let segment: any;
+  export let segment: any
 </script>
 
 <style>

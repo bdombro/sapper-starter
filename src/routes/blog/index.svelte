@@ -3,13 +3,13 @@
     return this.fetch(`blog.json`)
       .then((r: any) => r.json())
       .then((posts: any) => {
-        return { posts };
-      });
+        return { posts }
+      })
   }
 </script>
 
 <script lang="ts">
-  export let posts: { slug: string; title: string }[];
+  export let posts: { slug: string; title: string }[]
 </script>
 
 <style>
