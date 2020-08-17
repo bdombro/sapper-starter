@@ -7,6 +7,7 @@
 // we don't want to create an `/blog/posts` route — the leading
 // underscore tells Sapper not to do that.
 
+// TODO: Convert html to markdown
 const posts = [
 	{
 		title: 'What is Sapper?',

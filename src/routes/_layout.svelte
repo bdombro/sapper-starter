@@ -15,10 +15,8 @@
 	}
 </style>
 
-<template>
-	<Nav {segment}/>
+<Nav {segment}/>
 
-	<main>
-		<slot></slot>
-	</main>
-</template>
+<main>
+	<slot></slot>
+</main>
