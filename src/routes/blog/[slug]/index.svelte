@@ -14,7 +14,15 @@
 </script>
 
 <script lang="ts">
-  export let post: any
+  import type { Post } from '../_types'
+  export let post: Post
+
+  async function like() {
+    const res = await fetch(`${location.pathname}/like.json`, {
+      method: 'POST',
+    })
+    post = await res.json()
+  }
 </script>
 
 <style lang="scss">
@@ -64,3 +72,9 @@
 <div class="content">
   {@html post.html}
 </div>
+
+<button on:click={like}>
+  {#if !post.likes}
+    Like
+  {:else if post.likes === 1}{post.likes} Like{:else}{post.likes} Likes{/if}
+</button>

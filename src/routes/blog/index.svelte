@@ -9,12 +9,7 @@
 </script>
 
 <script type="ts">
-  interface Post {
-    title: string
-    slug: string
-    html: string
-  }
-
+  import type { Post } from './_types'
   export let posts: Post[] = []
 </script>
 

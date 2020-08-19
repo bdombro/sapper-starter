@@ -51,7 +51,9 @@
 <nav>
   <ul>
     <li>
-      <a aria-current={segment === undefined ? 'page' : undefined} href=".">
+      <a
+        aria-current={segment === undefined ? 'page' : undefined}
+        href="dashboard">
         home
       </a>
     </li>

@@ -1,49 +1,12 @@
-<style lang="scss">
-  h1,
-  figure,
-  p {
-    text-align: center;
+<script context="module">
+  export async function preload(page, session) {
+    // const { user } = session;
+
+    // if (!user) {
+    // 	return this.redirect(302, 'login');
+    // }
+
+    // return { user };
+    return this.redirect(302, 'dashboard')
   }
-
-  h1 {
-    font-size: 2.8em;
-    text-transform: uppercase;
-    font-weight: 700;
-    margin: 0 0 0.5em 0;
-
-    @media (min-width: 480px) {
-      font-size: 8em;
-    }
-  }
-
-  figure {
-    margin: 0 0 1em 0;
-
-    img {
-      width: 100%;
-      max-width: 400px;
-      margin: 0 0 1em 0;
-    }
-  }
-
-  p {
-    margin: 1em auto;
-  }
-</style>
-
-<svelte:head>
-  <title>Sapper project template</title>
-</svelte:head>
-
-<h1>Great success!</h1>
-
-<figure>
-  <img alt="Success Kid" src="successkid.jpg" />
-  <figcaption>Have fun with Sapper!</figcaption>
-</figure>
-
-<p>
-  <strong>
-    Try editing this file (src/routes/index.svelte) to test live reloading.
-  </strong>
-</p>
+</script>
