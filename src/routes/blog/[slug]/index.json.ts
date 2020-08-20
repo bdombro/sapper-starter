@@ -8,11 +8,9 @@ export function get(req, res, next) {
 
   const post = posts.get(slug)
   if (post) {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify(post))
+    res.writeHead(200).end(JSON.stringify(post))
   } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ message: `Not found` }))
+    res.writeHead(404).end(JSON.stringify({ message: `Not found` }))
   }
 }
 
@@ -20,13 +18,11 @@ export function patch(req, res, next) {
   const { slug } = req.params
   const post = posts.get(slug)
   if (post) {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
     const postNext = { ...post, ...req.body }
     posts.set(slug, postNext)
-    res.end(JSON.stringify(postNext))
+    res.writeHead(200).end(JSON.stringify(postNext))
   } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ message: `Not found` }))
+    res.writeHead(404).end(JSON.stringify({ message: `Not found` }))
   }
 }
 
@@ -36,11 +32,9 @@ export function patch(req, res, next) {
 export function del(req, res, next) {
   const { slug } = req.params
   if (posts.has(slug)) {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
     posts.delete(slug)
-    res.end(JSON.stringify({ success: true }))
+    res.writeHead(200).end(JSON.stringify({ success: true }))
   } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ message: `Not found` }))
+    res.writeHead(404).end(JSON.stringify({ message: `Not found` }))
   }
 }
