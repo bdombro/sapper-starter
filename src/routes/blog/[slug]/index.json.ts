@@ -19,19 +19,15 @@ export function get(req, res, next) {
 export function patch(req, res, next) {
   const { slug } = req.params
   const post = posts.get(slug)
-  req.on('data', (data, err) => {
-    if (err) res.status(404).send({ error: 'invalid json' })
-    const patch = JSON.parse(data)
-    if (post) {
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      const next = { ...post, ...patch }
-      posts.set(slug, next)
-      res.end(JSON.stringify(next))
-    } else {
-      res.writeHead(404, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ message: `Not found` }))
-    }
-  })
+  if (post) {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    const postNext = { ...post, ...req.body }
+    posts.set(slug, postNext)
+    res.end(JSON.stringify(postNext))
+  } else {
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ message: `Not found` }))
+  }
 }
 
 // TODO: Make CRUD a pattern
