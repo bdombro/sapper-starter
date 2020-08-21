@@ -1,27 +1,24 @@
 <script context="module" lang="ts">
-  export async function preload({ params }) {
-    // the `slug` parameter is available because
-    // this file is called [slug].svelte
-    const res = await this.fetch(`blog/${params.slug}.json`)
-    const data = await res.json()
-
+  export async function preload({ path }) {
+    const res = await this.fetch(`${path}.json`);
+    const data = await res.json();
     if (res.status === 200) {
-      return { post: data }
+      return { post: data };
     } else {
-      this.error(res.status, data.message)
+      this.error(res.status, data.message);
     }
   }
 </script>
 
 <script lang="ts">
-  import type { Post } from '../_types'
-  export let post: Post
+  import type { Post } from "../_types";
+  export let post: Post;
 
   async function like() {
     const res = await fetch(`${location.pathname}/like.json`, {
-      method: 'POST',
-    })
-    post = await res.json()
+      method: "POST",
+    });
+    post = await res.json();
   }
 </script>
 

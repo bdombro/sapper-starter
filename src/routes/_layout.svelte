@@ -1,7 +1,9 @@
 <script lang="ts">
-  import Nav from '../components/Nav.svelte'
-
-  export let segment: any
+  import { stores } from "@sapper/app";
+  import Nav from "../components/Nav.svelte";
+  export let segment: any;
+  export let page = stores().page;
+  export const fullScreenPaths = new Set([]);
 </script>
 
 <style lang="scss">
@@ -15,7 +17,9 @@
   }
 </style>
 
-<Nav {segment} />
+{#if !fullScreenPaths.has($page.path)}
+  <Nav {segment} />
+{/if}
 
 <main>
   <slot />

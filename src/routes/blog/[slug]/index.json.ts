@@ -1,40 +1,37 @@
-import posts from '../_posts'
+import posts from "../_posts";
 
-export function get(req, res, next) {
-  // the `slug` parameter is available because
-  // this file is called [slug].json.js
-  // console.dir(posts)
-  const { slug } = req.params
+export function get(req, res) {
+  const { slug } = req.params;
 
-  const post = posts.get(slug)
+  const post = posts.get(slug);
   if (post) {
-    res.writeHead(200).end(JSON.stringify(post))
+    res.status(200).json(post);
   } else {
-    res.writeHead(404).end(JSON.stringify({ message: `Not found` }))
+    res.status(404).json({ message: `Not found` });
   }
 }
 
-export function patch(req, res, next) {
-  const { slug } = req.params
-  const post = posts.get(slug)
+export function patch(req, res) {
+  const { slug } = req.params;
+  const post = posts.get(slug);
   if (post) {
-    const postNext = { ...post, ...req.body }
-    posts.set(slug, postNext)
-    res.writeHead(200).end(JSON.stringify(postNext))
+    const postNext = { ...post, ...req.body };
+    posts.set(slug, postNext);
+    res.status(200).json(postNext);
   } else {
-    res.writeHead(404).end(JSON.stringify({ message: `Not found` }))
+    res.status(404).json({ message: `Not found` });
   }
 }
 
 // TODO: Make CRUD a pattern
 // TODO: Validation
 
-export function del(req, res, next) {
-  const { slug } = req.params
+export function del(req, res) {
+  const { slug } = req.params;
   if (posts.has(slug)) {
-    posts.delete(slug)
-    res.writeHead(200).end(JSON.stringify({ success: true }))
+    posts.delete(slug);
+    res.status(200).json({ success: true });
   } else {
-    res.writeHead(404).end(JSON.stringify({ message: `Not found` }))
+    res.status(404).json({ message: `Not found` });
   }
 }

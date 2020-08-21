@@ -1,16 +1,16 @@
 <script context="module" lang="ts">
-  export function preload() {
-    return this.fetch(`blog.json`)
+  export function preload({ path }) {
+    return this.fetch(`${path}.json`)
       .then((r: any) => r.json())
       .then((posts: any) => {
-        return { posts }
-      })
+        return { posts };
+      });
   }
 </script>
 
 <script type="ts">
-  import type { Post } from './_types'
-  export let posts: Post[] = []
+  import type { Post } from "./_types";
+  export let posts: Post[] = [];
 </script>
 
 <style lang="scss">

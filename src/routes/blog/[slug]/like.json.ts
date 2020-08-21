@@ -1,13 +1,13 @@
-import posts from '../_posts'
+import posts from "../_posts";
 
-export function post(req, res, next) {
-  const { slug } = req.params
+export function post(req, res) {
+  const { slug } = req.params;
   if (posts.has(slug)) {
-    const next = posts.get(slug)
-    next.likes++
-    posts.set(next.slug, next)
-    res.writeHead(201).end(JSON.stringify(next))
+    const next = posts.get(slug);
+    next.likes++;
+    posts.set(next.slug, next);
+    res.status(201).json(next);
   } else {
-    res.writeHead(404).end(JSON.stringify({ message: `Not found` }))
+    res.status(404).json({ message: `Not found` });
   }
 }
