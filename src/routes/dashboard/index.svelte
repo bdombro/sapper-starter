@@ -1,3 +1,7 @@
+<script>
+  import Head from "../../components/Head.svelte";
+</script>
+
 <style lang="scss">
   h1,
   figure,
@@ -31,9 +35,7 @@
   }
 </style>
 
-<svelte:head>
-  <title>Sapper project template</title>
-</svelte:head>
+<Head title="Dashboard" description="Sapper Starter Dashboard" />
 
 <h1>Great success!</h1>
 

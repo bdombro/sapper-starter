@@ -9,6 +9,7 @@
 </script>
 
 <script type="ts">
+  import Head from "../../components/Head.svelte";
   import type { Post } from "./_types";
   export let posts: Post[] = [];
 </script>
@@ -20,9 +21,7 @@
   }
 </style>
 
-<svelte:head>
-  <title>Blog</title>
-</svelte:head>
+<Head title="Blog" description="A blog demo" />
 
 <h1>Recent posts</h1>
 

@@ -28,7 +28,8 @@
 </style>
 
 <svelte:head>
-  <title>{status}</title>
+  <title>{status} | Sapper Starter</title>
+  <meta name="description" content="Error Page" />
 </svelte:head>
 
 <h1>{status}</h1>

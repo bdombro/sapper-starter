@@ -11,6 +11,7 @@
 </script>
 
 <script lang="ts">
+  import Head from "../../../components/Head.svelte";
   import type { Post } from "../_types";
   export let post: Post;
 
@@ -60,9 +61,7 @@
   }
 </style>
 
-<svelte:head>
-  <title>{post.title}</title>
-</svelte:head>
+<Head title={post.title} description="Page for {post.title}" />
 
 <h1>{post.title}</h1>
 

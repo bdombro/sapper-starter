@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Head from "../../../components/Head.svelte";
   import { goto, stores } from "@sapper/app";
   import { adminUserAuth } from "../_users";
   export let redirecting = false;
@@ -25,9 +26,7 @@
   }
 </script>
 
-<svelte:head>
-  <title>Login</title>
-</svelte:head>
+<Head title="Login" description="Login Page" />
 
 <h1>Login</h1>
 {#if redirecting}

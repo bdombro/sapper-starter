@@ -11,6 +11,7 @@
 </script>
 
 <script lang="ts">
+  import Head from "../../../components/Head.svelte";
   import { goto, stores } from "@sapper/app";
   import type { User } from "../types";
   export let user: User;
@@ -33,9 +34,11 @@
   }
 </style>
 
-<svelte:head>
-  <title>{user.givenName} {user.surname}</title>
-</svelte:head>
+<Head
+  title="{user.givenName}
+  {user.surname}"
+  description="User profile for {user.givenName}
+  {user.surname}" />
 
 <h1>{user.givenName} {user.surname}</h1>
 

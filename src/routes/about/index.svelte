@@ -1,6 +1,8 @@
-<svelte:head>
-  <title>About</title>
-</svelte:head>
+<script lang="ts">
+  import Head from "../../components/Head.svelte";
+</script>
+
+<Head title="About" description="About a blog demo" />
 
 <h1>About this site</h1>
 
