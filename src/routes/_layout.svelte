@@ -2,7 +2,7 @@
   import { stores } from "@sapper/app";
   import Nav from "../components/Nav.svelte";
   export const fullScreenPaths = new Set([]);
-  export let segment: any;
+  export let segment: string;
   export let page = stores().page;
 </script>
 

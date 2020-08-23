@@ -27,7 +27,6 @@
   <meta name="DC.Title" content={titleDerived} />
   <meta name="url" content={url} />
   <meta name="description" content={description} />
-  <meta name="robots" content={follow} />
   {#if keywords}
     <meta name="keywords" content={keywords.join(', ')} />
   {/if}

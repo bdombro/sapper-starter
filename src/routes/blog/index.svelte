@@ -1,10 +1,7 @@
 <script context="module" lang="ts">
-  export function preload({ path }) {
-    return this.fetch(`${path}.json`)
-      .then((r: any) => r.json())
-      .then((posts: any) => {
-        return { posts };
-      });
+  import { getPageData } from "../../lib/ssrApi";
+  export async function preload({ path }) {
+    return await getPageData(this, path);
   }
 </script>
 

@@ -1,25 +1,20 @@
 <script context="module" lang="ts">
+  import { getPageData } from "../../../lib/ssrApi";
   export async function preload({ path }) {
-    const res = await this.fetch(`${path}.json`);
-    const data = await res.json();
-    if (res.status === 200) {
-      return { post: data };
-    } else {
-      this.error(res.status, data.message);
-    }
+    return await getPageData(this, path);
   }
 </script>
 
 <script lang="ts">
+  import api from "../../../lib/api";
   import Head from "../../../components/Head.svelte";
-  import type { Post } from "../_types";
-  export let post: Post;
+  import type { IndexData } from "./_types";
+  export let post: IndexData["post"];
 
   async function like() {
-    const res = await fetch(`${location.pathname}/like.json`, {
-      method: "POST",
-    });
-    post = await res.json();
+    const res = await api.post("like.json");
+    if (res.ok) post = await res.json();
+    else alert(JSON.stringify(await res.json()));
   }
 </script>
 

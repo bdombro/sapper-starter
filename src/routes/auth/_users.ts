@@ -1,4 +1,4 @@
-import type { User } from "./types";
+import type { User } from "./_types";
 
 export const adminUserAuth: User = {
   id: "coolid1",

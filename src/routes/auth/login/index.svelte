@@ -1,28 +1,29 @@
 <script lang="ts">
-  import Head from "../../../components/Head.svelte";
   import { goto, stores } from "@sapper/app";
+  import api from "../../../lib/api";
+  import Head from "../../../components/Head.svelte";
   import { adminUserAuth } from "../_users";
+  import type { LoginCreds, Session } from "./_types";
   export let redirecting = false;
   export let session = stores().session;
 
   async function login() {
-    const sessionNext = await fetch(`${location.pathname}.json`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: adminUserAuth.username,
-        password: adminUserAuth.password,
-      }),
-    }).then((r) => r.json());
-    redirecting = true;
-    session.set(sessionNext);
-    setTimeout(() => goto("/"), 1000);
+    const creds: LoginCreds = {
+      username: adminUserAuth.username,
+      password: adminUserAuth.password,
+    };
+    const res = await api.post(".", creds);
+    if (res.ok) {
+      redirecting = true;
+      const sessionNext: Session = await res.json();
+      session.set(sessionNext);
+      setTimeout(() => goto("/"), 1000);
+    } else alert(JSON.stringify(await res.json()));
   }
   async function logout() {
-    await fetch(`${location.pathname}/logout.json`, {
-      method: "POST",
-    });
-    session.set({});
+    const res = await api.post("logout");
+    if (res.ok) session.set({});
+    else alert(JSON.stringify(await res.json()));
   }
 </script>
 

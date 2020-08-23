@@ -1,7 +1,7 @@
 <script lang="ts">
   import { stores } from "@sapper/app";
   export let session = stores().session;
-  export let segment;
+  export let segment: string;
 </script>
 
 <style lang="scss">

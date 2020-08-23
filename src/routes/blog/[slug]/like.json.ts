@@ -8,6 +8,6 @@ export function post(req, res) {
     posts.set(next.slug, next);
     res.status(201).json(next);
   } else {
-    res.status(404).json({ message: `Not found` });
+    res.status(404).json({ error: `Not found` });
   }
 }

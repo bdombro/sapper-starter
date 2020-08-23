@@ -1,28 +1,24 @@
 <script context="module">
+  import { getPageData } from "../../../lib/ssrApi";
   export async function preload({ path }) {
-    const res = await this.fetch(`${path}.json`);
-    const data = await res.json();
-    if (res.status === 200) {
-      return { user: data };
-    } else {
-      this.error(res.status, data.message);
-    }
+    return await getPageData(this, path);
   }
 </script>
 
 <script lang="ts">
+  import api from "../../../lib/api";
   import Head from "../../../components/Head.svelte";
   import { goto, stores } from "@sapper/app";
-  import type { User } from "../types";
-  export let user: User;
+  import type { IndexData } from "./_types";
+  export let user: IndexData["user"];
   let session = stores().session;
 
   async function logout() {
-    await fetch(`${location.pathname}/logout.json`, {
-      method: "POST",
-    });
-    session.set({});
-    return goto("/auth/login");
+    const res = await api.post("logout");
+    if (res.ok) {
+      session.set({});
+      goto("/auth/login");
+    } else alert(JSON.stringify(await res.json()));
   }
 </script>
 
