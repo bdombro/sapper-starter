@@ -1,93 +1,65 @@
 # sapper-template
 
-This is a fork from the official [Sapper](https://github.com/sveltejs/sapper) template.
+This is a fork from the official [Sapper template](https://github.com/sveltejs/sapper-template), with aims of being a feature-complete starter app that prioritizes developer experience, performance, and costs to maintain/deploy.
 
-Changes:
+What is it? A single express app that does not depend on any 3rd party services for auth, image handling, data storage (except for PostgresDB)
 
-- Install svelte-preprocess, Typescript and SASS
-
-In the future, I'd like to install PUG and Stylus, but support for those libraries is not yet ready.
-
-- Pug:
-  - svelte-check fails for Svelte mixins (aka +if and +each): https://github.com/sveltejs/svelte-preprocess/issues/207
-  - IDE support is incomplete with Svelte mixins, b/c they use strings which are not understood by IDE to be JS
-- Stylus:
-  - svelte-check does not yet support stylus
-  - prettier does not seem to support stylus yet
 
 ## Getting started
 
-### Running the project
+As of now, getting started is mostly the same [Sapper template](https://github.com/sveltejs/sapper-template) with these additions:
 
-However you get the code, you can install dependencies and run the project in development mode with:
+- You'll need a running PostgresDB and set the config in /config.
 
-```bash
-cd my-app
-npm install # or yarn
-npm run dev
-```
+## Architectural Decisions
 
-Open up [localhost:3000](http://localhost:3000) and start clicking around.
+### Why Sapper? 
 
-Consult [sapper.svelte.dev](https://sapper.svelte.dev) for help getting started.
+I choose Sapper for Svelte + it's novel approach to co-locating backend code with frontend, which IMO offers:
+ 1. all of the productivity gains of server-rendered traditional backends (Rails, Django) by co-locating frontend and backend source code
+ 2. by co-locating backend code with frontend, it's trivial to implement route-specific custom REST endpoints. In effect, this dramatically decreases the benefits of GraphQL, which is in my experience is a major effort to implement and maintain due to complex, fragile tooling, complex caching that is near impossible to cache at the edges, and the need to being a generic API. GraphQL is still the best choice for an API with multiple clients, but it's overkill for backends made for one consumer/client.
+ 3. easier management of image handling
 
-## Structure
+ 
+### Why Sass?
 
-Sapper expects to find two directories in the root of your project — `src` and `static`.
+Stylus or modern CSS would be preferred, but Sapper and IDEs aren't ready. 
 
-### src
+Stylus:
+- svelte-check does not yet support stylus
+- prettier does not seem to support stylus yet
+  
+Modern CSS via PostCSS:
+- IDEs don't understand it
 
-The [src](src) directory contains the entry points for your app — `client.js`, `server.js` and (optionally) a `service-worker.js` — along with a `template.html` file and a `routes` directory.
 
-#### src/routes
+### Why not PUG for HTML templates?
 
-This is the heart of your Sapper app. There are two kinds of routes — _pages_, and _server routes_.
+I'm a big fan of PUG, but
+- svelte-check fails for Svelte mixins (aka +if and +each): https://github.com/sveltejs/svelte-preprocess/issues/207
+- IDE support is incomplete with Svelte mixins, b/c they use strings which are not understood by IDE to be JS
 
-**Pages** are Svelte components written in `.svelte` files. When a user first visits the application, they will be served a server-rendered version of the route in question, plus some JavaScript that 'hydrates' the page and initialises a client-side router. From that point forward, navigating to other pages is handled entirely on the client for a fast, app-like feel. (Sapper will preload and cache the code for these subsequent pages, so that navigation is instantaneous.)
 
-**Server routes** are modules written in `.js` files, that export functions corresponding to HTTP methods. Each function receives Express `request` and `response` objects as arguments, plus a `next` function. This is useful for creating a JSON API, for example.
+### Image Handling
 
-There are three simple rules for naming the files that define your routes:
+Decisions:
+- Source images are stored generically: bins saved to a flat file bucket and metadata stored in an images db table. This way images can easily have many-to-many relationships with other db records.
+- Frontend routes that display images should implement a seperate image fetching route for each image use-case. For example, you could have an avatar.jpg.json that returns a 50px*50px cropped and resized jpeg image.
+- Similarly, frontend routes that support image uploads should implement a seperate image saving route for each image saving use-case. For example, you could have an avatar.jpg.json route that accepts image POSTs, optimizes the image, saves to file storage, creates an image db record, then creates a relationship between the image and the user that the avatar is for.
+- Image processing is done using SharpJS for performance and developer experience (see note below)
 
-- A file called `src/routes/about.svelte` corresponds to the `/about` route. A file called `src/routes/blog/[slug].svelte` corresponds to the `/blog/:slug` route, in which case `params.slug` is available to the route
-- The file `src/routes/index.svelte` (or `src/routes/index.js`) corresponds to the root of your app. `src/routes/about/index.svelte` is treated the same as `src/routes/about.svelte`.
-- Files and directories with a leading underscore do _not_ create routes. This allows you to colocate helper modules and components with the routes that depend on them — for example you could have a file called `src/routes/_helpers/datetime.js` and it would _not_ create a `/_helpers/datetime` route
 
-### static
+## Imageflow? Pass.
 
-The [static](static) directory contains any static assets that should be available. These are served using [sirv](https://github.com/lukeed/sirv).
+I strongly considered imageflow_server as a microservice, but realized the complexity involved in adding a microservice overkill and actually less good than using ad-hoc image routes c/o Sapper + SharpJs.
 
-In your [service-worker.js](src/service-worker.js) file, you can import these as `files` from the generated manifest...
+Pros of imageflow_server:
+- can generically fetch any image
+- low-config management of cache
 
-```js
-import { files } from '@sapper/service-worker'
-```
+Cons
+- Takes significant manual effort to setup
+- Caching strategy is generic and in many cases non-ideal
+- Image URL strategy is harder to reason with and manage vs co-locating the image URL with the page that accesses it c/o Sapper
 
-...so that you can cache them (though you can choose not to, for example if you don't want to cache very large files).
-
-## Production mode and deployment
-
-To start a production version of your app, run `npm run build && npm start`. This will disable live reloading, and activate the appropriate bundler plugins.
-
-You can deploy your application to any environment that supports Node 10 or above. As an example, to deploy to [Vercel Now](https://vercel.com) when using `sapper export`, run these commands:
-
-```bash
-npm install -g vercel
-vercel
-```
-
-If your app can't be exported to a static site, you can use the [now-sapper](https://github.com/thgh/now-sapper) builder. You can find instructions on how to do so in its [README](https://github.com/thgh/now-sapper#basic-usage).
-
-## Using external components
-
-When using Svelte components installed from npm, such as [@sveltejs/svelte-virtual-list](https://github.com/sveltejs/svelte-virtual-list), Svelte needs the original component source (rather than any precompiled JavaScript that ships with the component). This allows the component to be rendered server-side, and also keeps your client-side app smaller.
-
-Because of that, it's essential that the bundler doesn't treat the package as an _external dependency_. You can either modify the `external` option under `server` in [rollup.config.js](rollup.config.js) or the `externals` option in [webpack.config.js](webpack.config.js), or simply install the package to `devDependencies` rather than `dependencies`, which will cause it to get bundled (and therefore compiled) with your app:
-
-```bash
-npm install -D @sveltejs/svelte-virtual-list
-```
-
-## Bugs and feedback
-
-Sapper is in early development, and may have the odd rough edge here and there. Please be vocal over on the [Sapper issue tracker](https://github.com/sveltejs/sapper/issues).
+Once I decided on handling image optimization in Sapper, I had to decide SharpJS vs. ImageFlow-node. I choose SharpJS b/c it's significantly higher performance, more mature, and easier to use/setup.
