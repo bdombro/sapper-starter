@@ -13,18 +13,18 @@
  * @param options: Standard fetch options
  */
 const fetchApi: FetchApi = async (uri, bodyObj, options) => {
-  let input = uri ?? location.pathname;
-  if (input === ".") input = location.pathname;
-  if (!input.startsWith("/")) input = location.pathname + "/" + input;
-  if (!input.endsWith(".json")) input = input + ".json";
+  let input = uri ?? location.pathname
+  if (input === ".") input = location.pathname
+  if (!input.startsWith("/")) input = location.pathname + "/" + input
+  if (!input.endsWith(".json")) input = input + ".json"
   const init = {
     ...options,
     headers: { "Content-Type": "application/json", ...options?.headers },
     ...(bodyObj && { body: JSON.stringify(bodyObj) }),
-  };
-  const res = await fetch(input, init);
-  return res;
-};
+  }
+  const res = await fetch(input, init)
+  return res
+}
 
 /**
  * Factory to easily create get, post, etc. specific fetch functions
@@ -32,8 +32,8 @@ const fetchApi: FetchApi = async (uri, bodyObj, options) => {
  */
 const factory: FetchApiFactory = (method: string) => {
   return (uri, bodyObj, options) =>
-    fetchApi(uri, bodyObj, { ...options, method });
-};
+    fetchApi(uri, bodyObj, { ...options, method })
+}
 
 export default {
   fetch: fetchApi,
@@ -42,11 +42,11 @@ export default {
   patch: factory("PATCH"),
   put: factory("PUT"),
   delete: factory("DELETE"),
-};
+}
 
 type FetchApi = (
   uri: string,
   bodyObj?: object,
   options?: RequestInit
-) => Promise<Response>;
-type FetchApiFactory = (method: string) => FetchApi;
+) => Promise<Response>
+type FetchApiFactory = (method: string) => FetchApi

@@ -1,14 +1,14 @@
 <script context="module" lang="ts">
-  import { getPageData } from "../../lib/ssrApi";
+  import { getPageData } from "../../lib/ssrApi"
   export async function preload({ path }) {
-    return await getPageData(this, path);
+    return await getPageData(this, path)
   }
 </script>
 
 <script type="ts">
-  import Head from "../../components/Head.svelte";
-  import type { Post } from "./_types";
-  export let posts: Post[] = [];
+  import Head from "../../components/Head.svelte"
+  import type { Post } from "./_types"
+  export let posts: Post[] = []
 </script>
 
 <style lang="scss">

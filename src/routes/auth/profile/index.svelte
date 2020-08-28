@@ -1,24 +1,24 @@
 <script context="module">
-  import { getPageData } from "../../../lib/ssrApi";
+  import { getPageData } from "../../../lib/ssrApi"
   export async function preload({ path }) {
-    return await getPageData(this, path);
+    return await getPageData(this, path)
   }
 </script>
 
 <script lang="ts">
-  import api from "../../../lib/api";
-  import Head from "../../../components/Head.svelte";
-  import { goto, stores } from "@sapper/app";
-  import type { IndexData } from "./_types";
-  export let user: IndexData["user"];
-  let session = stores().session;
+  import api from "../../../lib/api"
+  import Head from "../../../components/Head.svelte"
+  import { goto, stores } from "@sapper/app"
+  import type { IndexData } from "./_types"
+  export let user: IndexData["user"]
+  let session = stores().session
 
   async function logout() {
-    const res = await api.post("logout");
+    const res = await api.post("logout")
     if (res.ok) {
-      session.set({});
-      goto("/auth/login");
-    } else alert(JSON.stringify(await res.json()));
+      session.set({})
+      goto("/auth/login")
+    } else alert(JSON.stringify(await res.json()))
   }
 </script>
 

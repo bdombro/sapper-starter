@@ -11,7 +11,20 @@
     "cy:open": "cypress open",
     "test": "run-p --race dev cy:run",
     "validate": "svelte-check",
-    "prettier": "prettier --write --plugin-search-dir=. ./**/*.{html,svelte,ts,js,json}"
+    "prettier": "prettier --write --plugin-search-dir=.  ./**/*.{html,svelte,ts,js,json}"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc --noEmit && lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{html,svelte,ts,js,json,css,yaml,yml,gql,graphql}": [
+      "npm run prettier"
+    ]
+  },
+  "prettier": {
+    "semi": false
   },
   "browserslist": {
     "production": [
@@ -49,6 +62,8 @@
     "@rollup/plugin-replace": "^2.2.0",
     "@rollup/plugin-typescript": "^5.0.2",
     "@tsconfig/svelte": "^1.0.10",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.13",
     "node-sass": "^4.14.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.5",

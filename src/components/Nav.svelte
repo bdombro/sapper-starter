@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { stores } from "@sapper/app";
-  export let session = stores().session;
-  export let segment: string;
+  import { stores } from "@sapper/app"
+  export let session = stores().session
+  export let segment: string
 </script>
 
 <style lang="scss">
@@ -79,7 +79,7 @@
     </li>
 
     <li>
-      {#if $session?.i}
+      {#if $session && $session.i}
         <a
           rel="prefetch"
           aria-current={segment === 'auth' ? 'page' : undefined}

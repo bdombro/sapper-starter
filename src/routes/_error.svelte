@@ -1,8 +1,8 @@
 <script lang="ts">
-  export let status: string;
-  export let error: any;
+  export let status: string
+  export let error: any
 
-  const dev = process.env.NODE_ENV === "development";
+  const dev = process.env.NODE_ENV === "development"
 </script>
 
 <style lang="scss">

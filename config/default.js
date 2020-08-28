@@ -9,4 +9,4 @@ module.exports = {
     user: "postgres",
     password: "",
   },
-};
+}

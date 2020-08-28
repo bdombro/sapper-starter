@@ -1,20 +1,20 @@
 <script context="module" lang="ts">
-  import { getPageData } from "../../../lib/ssrApi";
+  import { getPageData } from "../../../lib/ssrApi"
   export async function preload({ path }) {
-    return await getPageData(this, path);
+    return await getPageData(this, path)
   }
 </script>
 
 <script lang="ts">
-  import api from "../../../lib/api";
-  import Head from "../../../components/Head.svelte";
-  import type { IndexData } from "./_types";
-  export let post: IndexData["post"];
+  import api from "../../../lib/api"
+  import Head from "../../../components/Head.svelte"
+  import type { IndexData } from "./_types"
+  export let post: IndexData["post"]
 
   async function like() {
-    const res = await api.post("like.json");
-    if (res.ok) post = await res.json();
-    else alert(JSON.stringify(await res.json()));
+    const res = await api.post("like.json")
+    if (res.ok) post = await res.json()
+    else alert(JSON.stringify(await res.json()))
   }
 </script>
 

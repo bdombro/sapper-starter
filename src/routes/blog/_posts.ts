@@ -3,13 +3,13 @@
 // avoid unnecessary dependencies in the starter template, and in the
 // service of obviousness, we're just going to leave it here.
 
-import type { Post } from "./_types";
+import type { Post } from "./_types"
 
 // This file is called `_posts.js` rather than `posts.js`, because
 // we don't want to create an `/blog/posts` route — the leading
 // underscore tells Sapper not to do that.
 
-const removeTabsRegex = /^\t{3}/gm;
+const removeTabsRegex = /^\t{3}/gm
 
 // TODO: Convert html to markdown
 const posts: Map<string, Post> = new Map(
@@ -95,6 +95,6 @@ const posts: Map<string, Post> = new Map(
 		`.replace(removeTabsRegex, ""),
     },
   ].map((p) => [p.slug, p])
-);
+)
 
-export default posts;
+export default posts

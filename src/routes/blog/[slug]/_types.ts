@@ -1,5 +1,5 @@
-import type { Post } from "../_types";
+import type { Post } from "../_types"
 
 export interface IndexData {
-  post: Post;
+  post: Post
 }

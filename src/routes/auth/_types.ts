@@ -11,13 +11,13 @@ export enum UserFields {
 }
 
 export interface User {
-  id: string;
-  email: string;
-  password: string;
-  username: string;
-  givenName: string;
-  surname: string;
-  avatar: string;
-  terms: string;
-  role: 0 | 1;
+  id: string
+  email: string
+  password: string
+  username: string
+  givenName: string
+  surname: string
+  avatar: string
+  terms: string
+  role: 0 | 1
 }
