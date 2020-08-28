@@ -42,13 +42,12 @@
     ]
   },
   "dependencies": {
+    "compression": "^1.7.4",
     "config": "^3.3.1",
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "morgan": "^1.10.0",
-    "node-zopfli-es": "^1.0.6",
-    "shrink-ray-current": "^4.1.2",
     "sirv": "^1.0.0"
   },
   "devDependencies": {
@@ -72,6 +71,7 @@
     "rollup-plugin-svelte": "^5.0.1",
     "rollup-plugin-terser": "^6.1.0",
     "sapper": "^0.28.0",
+    "sharp": "^0.26.0",
     "svelte": "^3.17.3",
     "svelte-check": "^1.0.16",
     "svelte-preprocess": "^4.0.12",

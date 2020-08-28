@@ -1,7 +1,7 @@
 import sirv from "sirv"
 import express from "express"
 import logger from "morgan"
-import compression from "shrink-ray-current"
+import compression from "compression"
 import cookies from "cookie-parser"
 import * as sapper from "@sapper/server"
 import expressJwt from "express-jwt"
