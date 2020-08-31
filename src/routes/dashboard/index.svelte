@@ -1,5 +1,15 @@
-<script>
+<script context="module" lang="ts">
+  export async function preload({ path }) {
+    return { path }
+  }
+</script>
+
+<script lang="ts">
   import Head from "../../components/Head.svelte"
+  import Image from "../../components/Image.svelte"
+
+  export let path
+  $: centerImage = `${path}/centerImage.json`
 </script>
 
 <style lang="scss">
@@ -21,13 +31,8 @@
   }
 
   figure {
-    margin: 0 0 1em 0;
-
-    img {
-      width: 100%;
-      max-width: 400px;
-      margin: 0 0 1em 0;
-    }
+    margin: 0 auto;
+    max-width: 400px;
   }
 
   p {
@@ -38,9 +43,8 @@
 <Head title="Dashboard" description="Sapper Starter Dashboard" />
 
 <h1>Great success!</h1>
-
 <figure>
-  <img alt="Success Kid" src="successkid.jpg" />
+  <Image src={centerImage} initialHeight="266px" alt="Good Job!" />
   <figcaption>Have fun with Sapper!</figcaption>
 </figure>
 

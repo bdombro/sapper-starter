@@ -1,8 +1,9 @@
+import babel from "@rollup/plugin-babel"
+import commonjs from "@rollup/plugin-commonjs"
+import image from "@rollup/plugin-image"
 import resolve from "@rollup/plugin-node-resolve"
 import replace from "@rollup/plugin-replace"
-import commonjs from "@rollup/plugin-commonjs"
 import svelte from "rollup-plugin-svelte"
-import babel from "@rollup/plugin-babel"
 import typescript from "@rollup/plugin-typescript"
 import { terser } from "rollup-plugin-terser"
 import config from "sapper/config/rollup.js"
@@ -40,6 +41,7 @@ export default {
         dedupe: ["svelte"],
       }),
       commonjs(),
+      image({ include: "**/*.jpg" }),
       typescript({ sourceMap: dev }),
 
       legacy &&
@@ -94,11 +96,14 @@ export default {
         dedupe: ["svelte"],
       }),
       commonjs(),
+      image(),
       typescript({ sourceMap: dev }),
     ],
-    external: Object.keys(pkg.dependencies).concat(
-      require("module").builtinModules
-    ),
+    external: [
+      ...Object.keys(pkg.dependencies),
+      // ...Object.keys(pkg.devDependencies),
+      ...require("module").builtinModules,
+    ],
 
     preserveEntrySignatures: "strict",
     onwarn,
