@@ -17,6 +17,9 @@ export async function get(req, res) {
       res.type("image/svg+xml")
       res.end(makeSvgRectangle(width, height))
       return
+    case "xs":
+      quality = 1
+      break
     case "sm":
       quality = 50
       break

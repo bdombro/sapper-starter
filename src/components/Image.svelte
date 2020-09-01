@@ -31,8 +31,10 @@
     }
     await waitUntilLoaded()
     height = "auto"
-    await isVisible(element)
+    size = "xs"
+    await waitUntilLoaded()
     const speed = await getSpeed()
+    await isVisible(element)
     if (window.innerWidth > 600 && speed > 1) size = "lg"
     else size = "sm"
   })
