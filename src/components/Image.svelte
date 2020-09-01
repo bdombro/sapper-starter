@@ -25,6 +25,7 @@
     if (size === "lg") return
 
     if (size === "blank") {
+      // TODO: Replace with waitFor
       const waitUntilLoaded = () => {
         return new Promise((res) => {
           const interval = setInterval(async () => {
