@@ -10,34 +10,47 @@
   import { onMount } from "svelte"
   import { getSpeed } from "../lib/speed"
   import { isVisible } from "../lib/isVisible"
+  import cache from "./imageCache"
 
   export let alt: string
   export let src: string
-  let size = "blank"
+  let size = cache.get(src) || "blank"
   export let initialHeight: string = "auto"
-  let height = initialHeight
+  let height = size === "blank" ? initialHeight : "auto"
   let element
 
   onMount(async () => {
     getSpeed() // pump it
-    const waitUntilLoaded = () => {
-      return new Promise((res) => {
-        const interval = setInterval(async () => {
-          if (element.naturalWidth !== 0) {
-            clearInterval(interval)
-            res()
-          }
-        }, 100)
-      })
+
+    if (size === "lg") return
+
+    if (size === "blank") {
+      const waitUntilLoaded = () => {
+        return new Promise((res) => {
+          const interval = setInterval(async () => {
+            if (element.naturalWidth !== 0) {
+              clearInterval(interval)
+              res()
+            }
+          }, 100)
+        })
+      }
+      await waitUntilLoaded()
+      height = "auto"
+      size = "xs"
+      cache.set(src, "xs")
+      await waitUntilLoaded()
     }
-    await waitUntilLoaded()
-    height = "auto"
-    size = "xs"
-    await waitUntilLoaded()
+
     const speed = await getSpeed()
     await isVisible(element)
-    if (window.innerWidth > 600 && speed > 1) size = "lg"
-    else size = "sm"
+    if (window.innerWidth > 600 && speed > 1) {
+      size = "lg"
+      cache.set(src, "lg")
+    } else if (size !== "sm") {
+      size = "sm"
+      cache.set(src, "sm")
+    }
   })
 </script>
 
