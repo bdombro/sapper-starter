@@ -9,7 +9,7 @@
   import Image from "../../components/Image.svelte"
 
   export let path
-  $: centerImage = `${path}/centerImage.json`
+  $: centerImage = `${path}/images/center.json`
 </script>
 
 <style lang="scss">
