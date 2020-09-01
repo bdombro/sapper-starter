@@ -33,12 +33,7 @@ express() // You can also use polka, but it doesn't have as many helpful feature
     }),
     defaultHeaders,
     sapper.middleware({
-      session: (req) => ({
-        auth: req.auth,
-        client: {
-          useragent: req.useragent,
-        },
-      }),
+      session: (req) => req.auth,
     })
   )
   .listen(PORT, (err) => {

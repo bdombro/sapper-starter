@@ -1,8 +1,9 @@
 <script lang="ts">
   /**
-   * - Non-blocking Progressive loading: Loads a low-quality image at paint
-   *     - Images, even jpg progressive, seems to block deferred js from loading
-   * - lazy loading only when visible
+   * - Non-blocking Progressive loading: Loads a blank image at paint, then a
+   *   low, then the final once visible
+   *     - Why? Images, even jpg progressive, seems to block deferred js from loading
+   * - lazy loading full quality only when visible
    * - Network-speed aware quality selection: Will load lower quality if poor network
    * - Viewport aware quality selection: Will load lower quality if small screen
    */

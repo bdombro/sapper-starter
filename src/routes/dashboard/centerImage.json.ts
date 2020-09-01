@@ -5,6 +5,7 @@ function makeSvgRectangle(width, height) {
 }
 
 export async function get(req, res) {
+  res.setHeader("Cache-Control", "max-age=9999999")
   const width = 400
   let sharp = Sharp("./static/successkid.jpg")
 
