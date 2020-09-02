@@ -29,7 +29,7 @@ const GETCache: GETCacheType = (
   return async (req, res, next) => {
     try {
       let result = await cache.getFreshFromContext({ req, res, next })
-      res.header("ETag", result.etag)
+      res.header("ETag", `"${result.etag}"`)
 
       if (browserCache) {
         if (isPublic) res.header("Cache-Control", "public")
@@ -146,7 +146,9 @@ class GETCacheCache {
 }
 
 function sanitizeEtag(etag: string) {
-  return etag?.replace("W/", '').replace(/"/g, '')
+  return etag
+    ?.replace("W/", '') // Cloudflare adds W/ automatically
+    .replace(/"/g, '') // Cloudflare expects the eTag to be in quotes
 }
 
 interface ExpressContext {
