@@ -4,12 +4,16 @@ import { waitFor } from "./wait" // this is included with expressjs and is actua
 /**
  * A cache wrapper for API.GET endpoints
  *
- * - Caches responses for speedup
- * - Cache "hits" have max-life
- * - Uses ETag to match requests with cache
- * - Uses req.url to match requests with cache if isPublic = true
- * - On refresh, will still respond with 304 if body is unchanged
- * - Will trash the cache if "skip-cache" header is true
+ * - Caches responses for speedup based on ETags and URL
+ * - Fast: Responses are cached in-memory using a Map
+ * - Max-life: Cache entries have max-life and will be purged on expire
+ * - Stale-while-refresh: When a cache entry is requested near the end of it's
+ *   life (aka stale), return the stale and refresh in background
+ * - Race condition handling: Will wait for like requests to finish and return
+ *   the result from the like request instead of re-trying
+ * - Secure: Won't match by req.url if isPublic = false
+ * - Efficient: Will respond with 304 indefinitely as long as response unchanged
+ * - Bypass: Will trash the cache if "skip-cache" header is true
  */
 const GETCache: GETCacheType = (options: GETCacheCacheOptions) => {
   const cache = new GETCacheCache(options)
@@ -37,21 +41,12 @@ class GETCacheCache {
     GETCacheCacheEntry["url"],
     GETCacheCacheEntry["etag"]
   >()
-  public options: GETCacheCacheOptions
+  private options: GETCacheCacheOptions
 
   constructor(options: GETCacheCacheOptions) {
     this.options = options
   }
-
-  public deleteExpired() {
-    for (const [etag, entry] of this.cache.entries()) {
-      if (!entry.lock) {
-        const ttl = entry.expires - Date.now()
-        if (ttl <= 0) this.unset(etag)
-      }
-    }
-  }
-
+  
   public async getFreshFromContext(context: ExpressContext) {
     this.deleteExpired()
     const result = context.req.headers["skip-cache"]
@@ -61,7 +56,19 @@ class GETCacheCache {
     return result
   }
 
-  public getMatchFromContext(context: ExpressContext) {
+  private deleteExpired() {
+    for (const [etag, entry] of this.cache.entries()) {
+      if (!entry.lock) {
+        const ttl = entry.expires - Date.now()
+        if (ttl <= 0) {
+          this.urlToEtag.delete(entry.url)
+          this.cache.delete(etag)
+        }
+      }
+    }
+  }
+
+  private getMatchFromContext(context: ExpressContext) {
     const { req } = context
     const etag =
       req.headers["if-none-match"] ??
@@ -70,15 +77,7 @@ class GETCacheCache {
     return match
   }
 
-  public unset(etag: GETCacheCacheEntry["etag"]) {
-    const match = this.cache.get(etag)
-    if (match) {
-      this.urlToEtag.delete(match.url)
-      this.cache.delete(etag)
-    }
-  }
-
-  public async renew(context: ExpressContext): Promise<GETCacheCacheEntry> {
+  private async renew(context: ExpressContext): Promise<GETCacheCacheEntry> {
     const { req, res } = context
     const etag = req.headers["if-none-match"]
     // console.debug(`GETCache.renew: ${req.url}`)
@@ -110,7 +109,7 @@ class GETCacheCache {
     return result
   }
 
-  public refreshMatchInBackgroundIfStale(
+  private refreshMatchInBackgroundIfStale(
     context: ExpressContext,
     match: GETCacheCacheEntry
   ) {
