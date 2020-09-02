@@ -37,7 +37,7 @@ const GETCache: GETCacheType = (
       }
       else res.header("Expires", new Date().toUTCString()) // expires now
 
-      if (result.etag === req.headers["if-none-match"]) {
+      if (result.etag === sanitizeEtag(req.headers["if-none-match"])) {
         res.status(304).end()
       } else {
         res.status(200).end(result.body)
@@ -86,8 +86,8 @@ class GETCacheCache {
   private getMatchFromContext(context: ExpressContext) {
     const { req } = context
     const etag =
-      req.headers["if-none-match"]
-      ??
+      sanitizeEtag(req.headers["if-none-match"])
+      ||
       (this.options.isPublic && this.urlToEtag.get(req.url))
     const match = etag && this.cache.get(etag)
     // console.dir(match)
@@ -96,7 +96,7 @@ class GETCacheCache {
 
   private async renew(context: ExpressContext): Promise<GETCacheCacheEntry> {
     const { req, res } = context
-    const etag = req.headers["if-none-match"]
+    const etag = sanitizeEtag(req.headers["if-none-match"])
     console.debug(`GETCache.renew: ${req.url}`)
 
     // Lock cached etag if exists and return fulfilled result
@@ -117,7 +117,7 @@ class GETCacheCache {
     if (status != 200) throw { error: { status, body } }
     const result: GETCacheCacheEntry = {
       url: req.url,
-      etag: Etag(body),
+      etag: sanitizeEtag(Etag(body)),
       expires: Date.now() + this.options.maxLife,
       body,
       lock: false,
@@ -143,6 +143,10 @@ class GETCacheCache {
       })
     }
   }
+}
+
+function sanitizeEtag(etag: string) {
+  return etag?.replace("W/", '').replace(/"/g, '')
 }
 
 interface ExpressContext {
