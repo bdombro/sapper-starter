@@ -11,8 +11,6 @@ export const get = GETCache({
     }
     return [404, null]
   },
-  maxLife: 10000,
-  staleWhenTtlLessThan: 5000,
   isPublic: true,
 })
 

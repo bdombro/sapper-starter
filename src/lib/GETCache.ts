@@ -11,16 +11,31 @@ import { waitFor } from "./wait" // this is included with expressjs and is actua
  *   life (aka stale), return the stale and refresh in background
  * - Race condition handling: Will wait for like requests to finish and return
  *   the result from the like request instead of re-trying
- * - Secure: Won't match by req.url if isPublic = false
+ * - Semi-Secure: Won't match by req.url if isPublic = false. That said, Chrome shares ETag across windows even if incog.
  * - Efficient: Will respond with 304 indefinitely as long as response unchanged
  * - Bypass: Will trash the cache if "skip-cache" header is true
  */
-const GETCache: GETCacheType = (options: GETCacheCacheOptions) => {
-  const cache = new GETCacheCache(options)
+const GETCache: GETCacheType = (
+  {
+    bodyBuilder,
+    maxLife = 5000,
+    staleWhenTtlLessThan = 3000,
+    isPublic = false,
+    browserCache = true,
+  }
+  : GETCacheCacheOptions
+) => {
+  const cache = new GETCacheCache({bodyBuilder, maxLife, staleWhenTtlLessThan, isPublic})
   return async (req, res, next) => {
     try {
       let result = await cache.getFreshFromContext({ req, res, next })
       res.header("ETag", result.etag)
+
+      if (browserCache) {
+        if (isPublic) res.header("Cache-Control", "public")
+        res.header("Expires", new Date(result.expires).toUTCString())
+      }
+      else res.header("Expires", new Date().toUTCString()) // expires now
 
       if (result.etag === req.headers["if-none-match"]) {
         res.status(304).end()
@@ -51,7 +66,7 @@ class GETCacheCache {
     this.deleteExpired()
     const result = context.req.headers["skip-cache"]
       ? await this.renew(context)
-      : this.getMatchFromContext(context) ?? (await this.renew(context))
+      : this.getMatchFromContext(context) || (await this.renew(context))
     this.refreshMatchInBackgroundIfStale(context, result) // ignore promise so non-blocking
     return result
   }
@@ -71,16 +86,18 @@ class GETCacheCache {
   private getMatchFromContext(context: ExpressContext) {
     const { req } = context
     const etag =
-      req.headers["if-none-match"] ??
+      req.headers["if-none-match"]
+      ??
       (this.options.isPublic && this.urlToEtag.get(req.url))
     const match = etag && this.cache.get(etag)
+    // console.dir(match)
     return match
   }
 
   private async renew(context: ExpressContext): Promise<GETCacheCacheEntry> {
     const { req, res } = context
     const etag = req.headers["if-none-match"]
-    // console.debug(`GETCache.renew: ${req.url}`)
+    console.debug(`GETCache.renew: ${req.url}`)
 
     // Lock cached etag if exists and return fulfilled result
     const existing = etag && this.cache.get(etag)
@@ -106,6 +123,7 @@ class GETCacheCache {
       lock: false,
     }
     this.cache.set(result.etag, result)
+    this.urlToEtag.set(result.url, result.etag)
     return result
   }
 
@@ -146,11 +164,13 @@ interface GETCacheCacheOptions {
   // An async function that handles a GET request and returns a [status, body]
   bodyBuilder: BodyBuilder
   // How long cache hits should last
-  maxLife: number
+  maxLife?: number
   // When to consider stale ahead of cache expiration (aka time-to-live ttl). This will trigger a refresh in background
-  staleWhenTtlLessThan: number
+  staleWhenTtlLessThan?: number
   // Allow requests without a matching ETag to use the cache. DONT do this if your page has any access-control/permissions
-  isPublic: boolean
+  isPublic?: boolean
+  // Whether to tell the browser to cache or not
+  browserCache?: boolean
 }
 interface GETCacheCacheEntry {
   url: string

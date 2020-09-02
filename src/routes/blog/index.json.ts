@@ -8,7 +8,5 @@ export const get = GETCache({
     })
     return [200, JSON.stringify({ posts: postsList })]
   },
-  maxLife: 10000,
-  staleWhenTtlLessThan: 5000,
   isPublic: true,
 })
