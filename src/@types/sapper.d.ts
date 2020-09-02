@@ -13,4 +13,9 @@ declare module "@sapper/app" {
     page: Page & { subscribe: () => (next: Session) => void }
     preloading: boolean
   }
+  export function start({ target }: { target: HTMLAnchorElement }): unknown
+}
+
+declare module "@sapper/server" {
+  export function middleware({ session }: { session: object }): void
 }

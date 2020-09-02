@@ -12,7 +12,6 @@ const dev = NODE_ENV === "development"
 
 const defaultHeaders = function (req, res, next) {
   res.type("application/json") // default, can be overridden
-  // res.setHeader("Cache-Control", "max-age=30");
   next()
 }
 

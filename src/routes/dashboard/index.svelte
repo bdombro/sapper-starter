@@ -8,7 +8,7 @@
   import Head from "../../components/Head.svelte"
   import Image from "../../components/Image.svelte"
 
-  export let path
+  export let path: string
   $: centerImage = `${path}/images/center.json`
 </script>
 

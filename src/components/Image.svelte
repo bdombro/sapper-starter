@@ -17,7 +17,7 @@
   let size = cache.get(src) || "blank"
   export let initialHeight: string = "auto"
   let height = size === "blank" ? initialHeight : "auto"
-  let element
+  let element: HTMLImageElement
 
   onMount(async () => {
     getSpeed() // pump it

@@ -1,7 +1,10 @@
 /**
+ * A key-val indexeddb with *max-age* support
  * Adapted from https://github.com/elias551/simple-kvs
- * - Adds timestamp field and garbage collection feature.
  */
+
+// TODO: re-implement with idb, b/c idb is only 1kb, so it's nearly free
+// https://github.com/jakearchibald/idb#keyval-store
 const getIndexedDbObject = () =>
   customDbFactory ||
   (window &&
