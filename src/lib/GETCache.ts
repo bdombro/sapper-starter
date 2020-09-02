@@ -65,12 +65,11 @@ type BodyBuilder = (
   req,
   res,
   next
-) => Promise<
-  [
-    // The status code of the response (i.e. 200)
-    number,
-    // Normally a string (i.e. JSON), but sometimes a buffer (image)
-    any
-  ]
->
+) => Promise<BodyBuilderResponse>
+type BodyBuilderResponse = [
+  // The status code of the response (i.e. 200)
+  status: number,
+  // Normally a string (i.e. JSON), but sometimes a buffer (image)
+  body: any
+]
 type Hit = { url: string; etag: string; expires: number; body: any }
