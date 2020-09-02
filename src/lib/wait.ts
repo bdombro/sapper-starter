@@ -11,14 +11,14 @@
  **/
 export const wait = (ms: number) => {
   return new Promise(function (resolve) {
-    setTimeout(resolve, ms);
-  });
-};
+    setTimeout(resolve, ms)
+  })
+}
 
 /**
- * Return a promise that resolves when a callback resolves to truthy or on give-up (see options),
- * and that promise resolves to the final result of the callback. Will throw an error on give-up
- * by default.
+ * Return a promise that resolves when a callback resolves without throwing, or
+ * on give-up (see options). The final promise resolves to the final result of
+ * the callback. Will throw an error on give-up by default.
  *
  * For example,
  * const getElement = (selector: string) => document.querySelector(selector) as HTMLDivElement;
@@ -38,53 +38,77 @@ export const wait = (ms: number) => {
  *
  */
 export const waitFor: WaitFor = async (callback: any, options: any) => {
-  const { interval = 100, timeout = 10000, maxTries, throwsErrorOnBail = true } = options;
-  const callbackPromise = async () => callback(); // promisify callback
-  let tries = 0;
-  const before = Date.now();
-  const getElapsed = () => Date.now() - before;
-  let res;
+  const {
+    interval = 100,
+    timeout = 10000,
+    maxTries,
+    throwsErrorOnBail = true,
+  } = options
+  const callbackPromise = async () => callback() // promisify callback
+  let tries = 0
+  const before = Date.now()
+  const getElapsed = () => Date.now() - before
+  let res
 
   while (!res) {
-    const timeBeforeCall = getElapsed();
+    const timeBeforeCall = getElapsed()
 
     if (timeBeforeCall > timeout) {
-      if (throwsErrorOnBail) throw new Error(`waitFor: timed out after ${timeout}ms`);
-      else return null as any;
+      if (throwsErrorOnBail)
+        throw new Error(`waitFor: timed out after ${timeout}ms`)
+      else return null as any
     }
 
-    res = await callbackPromise();
-    const timeAfterCall = getElapsed();
-    const callDuration = timeAfterCall - timeBeforeCall;
-    tries++;
+    await callbackPromise()
+      .then((r) => (res = r))
+      .catch((e) => {
+        if (e instanceof Error) {
+          console.log("Dang")
+          throw e
+        }
+      })
+    const timeAfterCall = getElapsed()
+    const callDuration = timeAfterCall - timeBeforeCall
+    tries++
 
     if (maxTries && tries > maxTries) {
-      if (throwsErrorOnBail) throw new Error(`waitFor: reached maxTries at ${tries}`);
-      else return null as any;
+      if (throwsErrorOnBail)
+        throw new Error(`waitFor: reached maxTries at ${tries}`)
+      else return null as any
     }
 
-    const timeUntilInterval = interval - callDuration;
-    console.debug(`waitFor: tries=${tries} timeUntilInt=${timeUntilInterval}`);
+    const timeUntilInterval = interval - callDuration
+    console.debug(`waitFor: tries=${tries} timeUntilInt=${timeUntilInterval}`)
     if (timeUntilInterval > 0) {
-      console.debug(`waitFor: waiting ${timeUntilInterval}`);
-      await wait(timeUntilInterval);
+      console.debug(`waitFor: waiting ${timeUntilInterval}`)
+      await wait(timeUntilInterval)
     }
   }
-  return res;
-};
+  return res
+}
 
 // Will return a promise of the same type that callback returns. Or you can specify the type
 // returned using syntax waitFor<string>(...). UNLESS, you specify throwsErrorOnBail = false;
 type WaitFor = {
   <T extends any>(
     callback: () => T,
-    options: { interval?: number; timeout?: number; maxTries?: number; throwsErrorOnBail?: true }
-  ): Promise<T>;
+    options: {
+      interval?: number
+      timeout?: number
+      maxTries?: number
+      throwsErrorOnBail?: true
+    }
+  ): Promise<T>
   <T extends any>(
     callback: () => T,
-    options: { interval?: number; timeout?: number; maxTries?: number; throwsErrorOnBail: false }
-  ): Promise<T | null>;
-};
+    options: {
+      interval?: number
+      timeout?: number
+      maxTries?: number
+      throwsErrorOnBail: false
+    }
+  ): Promise<T | null>
+}
 
 // const testWait = async () => {
 //   const before = Date.now();
@@ -96,33 +120,33 @@ type WaitFor = {
 // testWait();
 
 // const testWaitFor = async () => {
-//   let tries = 0;
-//   let before = Date.now();
-//   const getElapsed = () => Date.now() - before;
+//   let tries = 0
+//   let before = Date.now()
+//   const getElapsed = () => Date.now() - before
 //
 //   const callback = async () => {
-//     console.log(`Tries: ${tries}; Elapsed: ${getElapsed()}`);
-//     await wait(10);
-//     tries++;
-//     return tries > 5;
-//   };
+//     console.log(`Tries: ${tries}; Elapsed: ${getElapsed()}`)
+//     await wait(10)
+//     if (tries++ < 5) throw 0
+//     return "success"
+//   }
 //
-//   tries = 0;
-//   before = Date.now();
+//   tries = 0
+//   before = Date.now()
 //   await waitFor(callback, { interval: 0, timeout: 10000 })
 //     .then(() => console.log("Success passed"))
-//     .catch(() => console.log("Success failed"));
+//     .catch(() => console.log("Success failed"))
 //
-//   tries = 0;
-//   before = Date.now();
+//   tries = 0
+//   before = Date.now()
 //   await waitFor(callback, { interval: 10, timeout: 10 })
 //     .then(() => console.log("Timeout test failed"))
-//     .catch(() => console.log("Timeout test passed"));
+//     .catch(() => console.log("Timeout test passed"))
 //
-//   tries = 0;
-//   before = Date.now();
+//   tries = 0
+//   before = Date.now()
 //   await waitFor(callback, { maxTries: 1 })
 //     .then(() => console.log("Max tries test failed"))
-//     .catch(() => console.log("Max tries test passed"));
-// };
-// testWaitFor();
+//     .catch(() => console.log("Max tries test passed"))
+// }
+// testWaitFor()

@@ -2,8 +2,8 @@ import posts from "../_posts"
 import type { IndexData } from "./_types"
 import GETCache from "../../../lib/GETCache"
 
-export const get = GETCache(
-  async (req, res) => {
+export const get = GETCache({
+  bodyBuilder: async (req, res) => {
     const post = posts.get(req.params.slug)
     if (post) {
       const data: IndexData = { post }
@@ -11,10 +11,10 @@ export const get = GETCache(
     }
     return [404, null]
   },
-  {
-    isPublic: true,
-  }
-)
+  maxLife: 10000,
+  staleWhenTtlLessThan: 5000,
+  isPublic: true,
+})
 
 export function patch(req, res) {
   if (req.auth?.i) {
