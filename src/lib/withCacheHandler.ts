@@ -1,6 +1,8 @@
 import Etag from "etag"
 import { waitFor } from "./wait" // this is included with expressjs and is actually used by default when using res.json
 
+const debug = false
+
 /**
  * A cache wrapper for API.GET endpoints
  *
@@ -14,6 +16,7 @@ import { waitFor } from "./wait" // this is included with expressjs and is actua
  * - Semi-Secure: Won't match by req.url if isPublic = false. That said, Chrome shares ETag across windows even if incog.
  * - Efficient: Will respond with 304 indefinitely as long as response unchanged
  * - Bypass: Will trash the cache if "skip-cache" header is true
+ * - Purgable: Can be purged or accessible from anywhere using exported resultCache
  */
 const withCacheHandler: WithCacheHandler = (
   {
@@ -23,9 +26,9 @@ const withCacheHandler: WithCacheHandler = (
     isPublic = false,
     browserCache = true,
   }
-  : CacheHandlerOptions
+  : GetCacheHandlerOptions
 ) => {
-  const cacheHandler = new CacheHandler({bodyBuilder, maxLife, staleWhenTtlLessThan, isPublic})
+  const cacheHandler = new GetCacheHandler({bodyBuilder, maxLife, staleWhenTtlLessThan, isPublic})
   return async (req, res, next) => {
     try {
       let result = await cacheHandler.getFreshFromContext({ req, res, next })
@@ -50,20 +53,75 @@ const withCacheHandler: WithCacheHandler = (
 }
 export default withCacheHandler
 
-class CacheHandler {
+class ResultCache {
+  // garbageCollectorInterval: This number can be high b/c this.get checks expires
+  private garbageCollectorInterval = 100 //10 * 60 * 1000
   private cache = new Map<CacheEntry["etag"], CacheEntry>()
-  private urlToEtag = new Map<
-    CacheEntry["url"],
-    CacheEntry["etag"]
-  >()
-  private options: CacheHandlerOptions
+  private urlToEtag = new Map<CacheEntry["url"], CacheEntry["etag"]>()
 
-  constructor(options: CacheHandlerOptions) {
+  constructor() {
+    setInterval(this.garbageCollector.bind(this), this.garbageCollectorInterval)
+  }
+
+  public get(etag: CacheEntry['etag']) {
+    const entry = etag && this.cache.get(sanitizeEtag(etag))
+    if (entry) {
+      const ttl = entry.expires - Date.now()
+      if (ttl <= 0) {
+        this.release(entry)
+        return
+      }
+    }
+    return entry
+  }
+  public getByUrl(url: CacheEntry['url']) {
+    const etag = this.urlToEtag.get(url),
+          entry = this.get(etag)
+    return entry
+  }
+  public set(entry: CacheEntry) {
+    this.urlToEtag.set(entry.url, entry.etag)
+    this.cache.set(entry.etag, entry)
+  }
+  public release(entry: CacheEntry) {
+    if (debug) console.debug("ResultCache: Releasing " + entry.etag)
+    this.urlToEtag.delete(entry.url)
+    this.cache.delete(entry.etag)
+  }
+  public lock(entry: CacheEntry) {
+    resultCache.set({ ...entry, lock: true })
+  }
+  public unlock(entry: CacheEntry) {
+    resultCache.set({ ...entry, lock: false })
+  }
+  public releaseByUrl(url: CacheEntry['url']) {
+    for (const entry of this.cache.values()) {
+      if (entry.url === url) {
+        this.release(entry)
+      }
+    }
+  }
+  private garbageCollector() {
+    for (const entry of this.cache.values()) {
+      if (!entry.lock) {
+        const ttl = entry.expires - Date.now()
+        if (ttl <= 0) {
+          this.release(entry)
+        }
+      }
+    }
+  }
+}
+export const resultCache = new ResultCache()
+
+class GetCacheHandler {
+  private options: GetCacheHandlerOptions
+
+  constructor(options: GetCacheHandlerOptions) {
     this.options = options
   }
   
   public async getFreshFromContext(context: ExpressContext) {
-    this.deleteExpired()
     const result = context.req.headers["skip-cache"]
       ? await this.renew(context)
       : this.getMatchFromContext(context) || (await this.renew(context))
@@ -71,46 +129,32 @@ class CacheHandler {
     return result
   }
 
-  private deleteExpired() {
-    for (const [etag, entry] of this.cache.entries()) {
-      if (!entry.lock) {
-        const ttl = entry.expires - Date.now()
-        if (ttl <= 0) {
-          this.urlToEtag.delete(entry.url)
-          this.cache.delete(etag)
-        }
-      }
-    }
-  }
-
   private getMatchFromContext(context: ExpressContext) {
     const { req } = context
-    const etag =
-      sanitizeEtag(req.headers["if-none-match"])
-      ||
-      (this.options.isPublic && this.urlToEtag.get(req.url))
-    const match = etag && this.cache.get(etag)
-    // console.dir(match)
+    const etag = req.headers["if-none-match"]
+    const match =
+      resultCache.get(etag)
+      || (this.options.isPublic && resultCache.getByUrl(req.url))
     return match
   }
 
   private async renew(context: ExpressContext): Promise<CacheEntry> {
     const { req, res } = context
-    const etag = sanitizeEtag(req.headers["if-none-match"])
-    console.debug(`GETCache.renew: ${req.url}`)
+    const etag = req.headers["if-none-match"]
+    if (debug) console.debug(`GetCacheHandler.renew: ${req.url}`)
 
     // Lock cached etag if exists and return fulfilled result
-    const existing = etag && this.cache.get(etag)
+    const existing = resultCache.get(etag)
     if (existing) {
       if (existing.lock) {
         const getFulfilled = () => {
-          const existing = this.cache.get(etag)
+          const existing = resultCache.get(etag)
           if (existing.lock) throw 0
           return existing
         }
         return await waitFor(getFulfilled, { interval: 100, timeout: 10000 })
       }
-      this.cache.set(etag, { ...existing, lock: true })
+      resultCache.lock(existing)
     }
 
     const [status, body] = await this.options.bodyBuilder(req, res)
@@ -122,8 +166,7 @@ class CacheHandler {
       body,
       lock: false,
     }
-    this.cache.set(result.etag, result)
-    this.urlToEtag.set(result.url, result.etag)
+    resultCache.set(result)
     return result
   }
 
@@ -133,12 +176,9 @@ class CacheHandler {
   ) {
     const ttl = match.expires - Date.now()
     if (ttl < this.options.staleWhenTtlLessThan) {
-      // console.debug(`GETCache.refreshMatchInBackgroundIfStale: ${match.url} ${ttl}`)
+      if (debug) console.debug(`GetCacheHandler.refreshMatchInBackgroundIfStale: ${match.url} ${ttl}`)
       this.renew(context).catch((e) => {
-        if (e.error)
-          console.error(
-            `GETCache: Prefetch failed for ${match.url} with ${e.error}`
-          )
+        if (e.error) console.error(`GetCacheHandler: Prefetch failed for ${match.url} with ${e.error}`)
         else throw e
       })
     }
@@ -151,13 +191,15 @@ function sanitizeEtag(etag: string) {
     .replace(/"/g, '') // Cloudflare expects the eTag to be in quotes
 }
 
+
+
 interface ExpressContext {
   req: any
   res: any
   next: any
 }
 type WithCacheHandler = (
-  options: CacheHandlerOptions
+  options: GetCacheHandlerOptions
 ) => (req, res, next) => Promise<void>
 type BodyBuilder = (req, res) => Promise<BodyBuilderResponse>
 type BodyBuilderResponse = [
@@ -166,7 +208,7 @@ type BodyBuilderResponse = [
   // Normally a string (i.e. JSON), but sometimes a buffer (image)
   body: any
 ]
-interface CacheHandlerOptions {
+interface GetCacheHandlerOptions {
   // An async function that handles a GET request and returns a [status, body]
   bodyBuilder: BodyBuilder
   // How long cache hits should last
