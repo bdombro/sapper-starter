@@ -1,8 +1,8 @@
 import posts from "../_posts"
 import type { IndexData } from "./_types"
-import GETCache from "../../../lib/GETCache"
+import withCacheHandler from "../../../lib/withCacheHandler"
 
-export const get = GETCache({
+export const get = withCacheHandler({
   bodyBuilder: async (req, res) => {
     const post = posts.get(req.params.slug)
     if (post) {

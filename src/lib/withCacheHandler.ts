@@ -15,7 +15,7 @@ import { waitFor } from "./wait" // this is included with expressjs and is actua
  * - Efficient: Will respond with 304 indefinitely as long as response unchanged
  * - Bypass: Will trash the cache if "skip-cache" header is true
  */
-const GETCache: GETCacheType = (
+const withCacheHandler: WithCacheHandler = (
   {
     bodyBuilder,
     maxLife = 5000,
@@ -23,17 +23,17 @@ const GETCache: GETCacheType = (
     isPublic = false,
     browserCache = true,
   }
-  : GETCacheCacheOptions
+  : CacheHandlerOptions
 ) => {
-  const cache = new GETCacheCache({bodyBuilder, maxLife, staleWhenTtlLessThan, isPublic})
+  const cacheHandler = new CacheHandler({bodyBuilder, maxLife, staleWhenTtlLessThan, isPublic})
   return async (req, res, next) => {
     try {
-      let result = await cache.getFreshFromContext({ req, res, next })
+      let result = await cacheHandler.getFreshFromContext({ req, res, next })
       res.header("ETag", `"${result.etag}"`)
 
       if (browserCache) {
         if (isPublic) res.header("Cache-Control", "public")
-        res.header("Expires", new Date(result.expires).toUTCString())
+        res.header("Expires", new Date(Math.abs(result.expires - staleWhenTtlLessThan)).toUTCString())
       }
       else res.header("Expires", new Date().toUTCString()) // expires now
 
@@ -48,17 +48,17 @@ const GETCache: GETCacheType = (
     }
   }
 }
-export default GETCache
+export default withCacheHandler
 
-class GETCacheCache {
-  private cache = new Map<GETCacheCacheEntry["etag"], GETCacheCacheEntry>()
+class CacheHandler {
+  private cache = new Map<CacheEntry["etag"], CacheEntry>()
   private urlToEtag = new Map<
-    GETCacheCacheEntry["url"],
-    GETCacheCacheEntry["etag"]
+    CacheEntry["url"],
+    CacheEntry["etag"]
   >()
-  private options: GETCacheCacheOptions
+  private options: CacheHandlerOptions
 
-  constructor(options: GETCacheCacheOptions) {
+  constructor(options: CacheHandlerOptions) {
     this.options = options
   }
   
@@ -94,7 +94,7 @@ class GETCacheCache {
     return match
   }
 
-  private async renew(context: ExpressContext): Promise<GETCacheCacheEntry> {
+  private async renew(context: ExpressContext): Promise<CacheEntry> {
     const { req, res } = context
     const etag = sanitizeEtag(req.headers["if-none-match"])
     console.debug(`GETCache.renew: ${req.url}`)
@@ -115,7 +115,7 @@ class GETCacheCache {
 
     const [status, body] = await this.options.bodyBuilder(req, res)
     if (status != 200) throw { error: { status, body } }
-    const result: GETCacheCacheEntry = {
+    const result: CacheEntry = {
       url: req.url,
       etag: sanitizeEtag(Etag(body)),
       expires: Date.now() + this.options.maxLife,
@@ -129,7 +129,7 @@ class GETCacheCache {
 
   private refreshMatchInBackgroundIfStale(
     context: ExpressContext,
-    match: GETCacheCacheEntry
+    match: CacheEntry
   ) {
     const ttl = match.expires - Date.now()
     if (ttl < this.options.staleWhenTtlLessThan) {
@@ -156,8 +156,8 @@ interface ExpressContext {
   res: any
   next: any
 }
-type GETCacheType = (
-  options: GETCacheCacheOptions
+type WithCacheHandler = (
+  options: CacheHandlerOptions
 ) => (req, res, next) => Promise<void>
 type BodyBuilder = (req, res) => Promise<BodyBuilderResponse>
 type BodyBuilderResponse = [
@@ -166,7 +166,7 @@ type BodyBuilderResponse = [
   // Normally a string (i.e. JSON), but sometimes a buffer (image)
   body: any
 ]
-interface GETCacheCacheOptions {
+interface CacheHandlerOptions {
   // An async function that handles a GET request and returns a [status, body]
   bodyBuilder: BodyBuilder
   // How long cache hits should last
@@ -178,7 +178,7 @@ interface GETCacheCacheOptions {
   // Whether to tell the browser to cache or not
   browserCache?: boolean
 }
-interface GETCacheCacheEntry {
+interface CacheEntry {
   url: string
   etag: string
   expires: number

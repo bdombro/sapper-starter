@@ -1,7 +1,7 @@
-import GETCache from "../../lib/GETCache"
+import withCacheHandler from "../../lib/withCacheHandler"
 import posts from "./_posts"
 
-export const get = GETCache({
+export const get = withCacheHandler({
   bodyBuilder: async () => {
     const postsList = Array.from(posts.values()).map((post) => {
       return { title: post.title, slug: post.slug }
