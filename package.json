@@ -7,6 +7,7 @@
     "build": "NODE_ENV=production sapper build --legacy",
     "export": "NODE_ENV=production sapper export --legacy",
     "start": "node __sapper__/build",
+    "deploy": "ssh sapper 'cd httpdocs; npm run pull'",
     "pull": "git pull && npm i && npm run build && touch ./tmp/restart.txt",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
