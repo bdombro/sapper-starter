@@ -1,7 +1,7 @@
 import Etag from "etag"
 import { waitFor } from "./wait" // this is included with expressjs and is actually used by default when using res.json
 
-const debug = false
+const debug = true
 
 /**
  * A cache wrapper for API.GET endpoints
@@ -53,6 +53,10 @@ const withCacheHandler: WithCacheHandler = (
 }
 export default withCacheHandler
 
+/**
+ * An in-memory cache. Ideal for low-scale apps, but you may consider a shared cache
+ * for high-scale.
+ */
 class ResultCache {
   // garbageCollectorInterval: This number can be high b/c this.get checks expires
   private garbageCollectorInterval = 100 //10 * 60 * 1000
@@ -68,6 +72,7 @@ class ResultCache {
     if (entry) {
       const ttl = entry.expires - Date.now()
       if (ttl <= 0) {
+        // maybe instead of deleting we should lock, so that other racing requests don't plow ahead before this request is done
         this.release(entry)
         return
       }
@@ -80,6 +85,7 @@ class ResultCache {
     return entry
   }
   public set(entry: CacheEntry) {
+    entry.etag = sanitizeEtag(entry.etag)
     this.urlToEtag.set(entry.url, entry.etag)
     this.cache.set(entry.etag, entry)
   }
@@ -114,81 +120,89 @@ class ResultCache {
 }
 export const resultCache = new ResultCache()
 
+
+/**
+ * Handle the cache in an efficient, de-duping, debouncing, performant way
+ *
+ * If cached and locked: This means another renew is already running for this request. Instead of renewing twice, resolve to the result of the matching request.
+ * If uncached: Create a lock on the request, fulfill it, and save the result to cache
+ *
+ */
 class GetCacheHandler {
   private options: GetCacheHandlerOptions
 
   constructor(options: GetCacheHandlerOptions) {
     this.options = options
   }
-  
-  public async getFreshFromContext(context: ExpressContext) {
-    const result = context.req.headers["skip-cache"]
-      ? await this.renew(context)
-      : this.getMatchFromContext(context) || (await this.renew(context))
-    this.refreshMatchInBackgroundIfStale(context, result) // ignore promise so non-blocking
+
+  public async getFreshFromContext(context: ExpressContext): Promise<CacheEntry> {
+    const { req } = context
+    const etag = req.headers['if-none-match']
+    const skipCache = req.headers['skip-cache']
+    const getExisting = () => resultCache.get(etag) || (this.options.isPublic && resultCache.getByUrl(req.url))
+
+    if (!skipCache) {
+      const existing = getExisting()
+      if (existing) {
+        // If locked: This means another renew is already running for this request. Instead of renewing twice, resolve to the result of the matching request.
+        if (existing.lock) {
+          const getReadyOrError = () => {
+            const existing = getExisting()
+            if (existing.lock) throw new waitFor.NotReadyException()
+            return existing
+          }
+          const result = await waitFor(getReadyOrError, { interval: 100, timeout: 60000 })
+          return result
+        }
+        // If stale, renew in background and return the stale
+        const ttl = existing.expires - Date.now()
+        if (ttl < this.options.staleWhenTtlLessThan) {
+          if (debug) console.log('GetCacheHandler: stale')
+          this.renew(context)
+        }
+        return existing
+      }
+    }
+
+    const result = this.renew(context)
     return result
   }
 
-  private getMatchFromContext(context: ExpressContext) {
-    const { req } = context
-    const etag = req.headers["if-none-match"]
-    const match =
-      resultCache.get(etag)
-      || (this.options.isPublic && resultCache.getByUrl(req.url))
-    return match
-  }
-
-  private async renew(context: ExpressContext): Promise<CacheEntry> {
-    const { req, res } = context
-    const etag = req.headers["if-none-match"]
+  private async renew(context: ExpressContext) {
+    const {req, res} = context
     if (debug) console.debug(`GetCacheHandler.renew: ${req.url}`)
+    const etag = req.headers['if-none-match']
 
-    // Lock cached etag if exists and return fulfilled result
-    const existing = resultCache.get(etag)
-    if (existing) {
-      if (existing.lock) {
-        const getFulfilled = () => {
-          const existing = resultCache.get(etag)
-          if (existing.lock) throw 0
-          return existing
-        }
-        return await waitFor(getFulfilled, { interval: 100, timeout: 10000 })
-      }
-      resultCache.lock(existing)
-    }
+    // Create a lock in the cache for this request
+    resultCache.set({
+      url: req.url,
+      etag: etag || '',
+      expires: 9999999999999,
+      body: '',
+      lock: true,
+    })
 
+    // Fulfill the request
     const [status, body] = await this.options.bodyBuilder(req, res)
     if (status != 200) throw { error: { status, body } }
     const result: CacheEntry = {
       url: req.url,
-      etag: sanitizeEtag(Etag(body)),
+      etag: Etag(body),
       expires: Date.now() + this.options.maxLife,
       body,
       lock: false,
     }
     resultCache.set(result)
+    console.log("renewed")
     return result
-  }
-
-  private refreshMatchInBackgroundIfStale(
-    context: ExpressContext,
-    match: CacheEntry
-  ) {
-    const ttl = match.expires - Date.now()
-    if (ttl < this.options.staleWhenTtlLessThan) {
-      if (debug) console.debug(`GetCacheHandler.refreshMatchInBackgroundIfStale: ${match.url} ${ttl}`)
-      this.renew(context).catch((e) => {
-        if (e.error) console.error(`GetCacheHandler: Prefetch failed for ${match.url} with ${e.error}`)
-        else throw e
-      })
-    }
   }
 }
 
 function sanitizeEtag(etag: string) {
-  return etag
+  const etagNext = etag
     ?.replace("W/", '') // Cloudflare adds W/ automatically
-    .replace(/"/g, '') // Cloudflare expects the eTag to be in quotes
+    ?.replace(/"/g, '') // Cloudflare expects the eTag to be in quotes
+  return etagNext
 }
 
 

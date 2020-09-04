@@ -3,7 +3,7 @@ import type { IndexData } from "./_types"
 import withCacheHandler from "../../../lib/withCacheHandler"
 
 export const get = withCacheHandler({
-  bodyBuilder: async (req, res) => {
+  bodyBuilder: async (req) => {
     const post = posts.get(req.params.slug)
     if (post) {
       const data: IndexData = { post }
@@ -12,6 +12,8 @@ export const get = withCacheHandler({
     return [404, null]
   },
   isPublic: true,
+  maxLife: 20000,
+  staleWhenTtlLessThan: 15000,
 })
 
 export function patch(req, res) {

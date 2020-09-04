@@ -1,3 +1,5 @@
+const debug = false
+
 /**
  * Return a promise that resolves after ms milliseconds
  *
@@ -23,13 +25,17 @@ export const wait = (ms: number) => {
  * For example,
  * const getElement = (selector: string) => document.querySelector(selector) as HTMLDivElement;
  * const element = await waitFor(
- *    () => getElement("#treasure"),
+ *    () => {
+ *        const e = getElement("#treasure")
+ *        if (!e) throw new waitFor.NotReadyException()
+ *        return e
+ *    },
  *    { interval: 50, timeout: 2000 }
  * );
  * element.innerHTML = "Harrrrr!"; // type = HTMLDivElement automagically!
  * element.notAThing = "boo"; // fails type check!
  *
- * @param callback: A function to retry until truthy (promises work too)
+ * @param callback: A function to retry until resolves without a NotReadyException (promises work too)
  * @param options: Options to control when and how to give-up
  * @param options.interval: How often to retry. Will never retry until last is done, though.
  * @param options.timeout: How long to wait before giving up
@@ -37,7 +43,8 @@ export const wait = (ms: number) => {
  * @param options.throwsErrorOnBail: Whether to throw an error or not on bail (aka give-up)
  *
  */
-export const waitFor: WaitFor = async (callback: any, options: any) => {
+class NotReadyException extends Error {}
+const waitForMain: WaitForMain = async (callback: any, options: any) => {
   const {
     interval = 100,
     timeout = 10000,
@@ -62,10 +69,7 @@ export const waitFor: WaitFor = async (callback: any, options: any) => {
     await callbackPromise()
       .then((r) => (res = r))
       .catch((e) => {
-        if (e instanceof Error) {
-          console.log("Dang")
-          throw e
-        }
+        if (!(e instanceof NotReadyException)) throw e
       })
     const timeAfterCall = getElapsed()
     const callDuration = timeAfterCall - timeBeforeCall
@@ -78,18 +82,20 @@ export const waitFor: WaitFor = async (callback: any, options: any) => {
     }
 
     const timeUntilInterval = interval - callDuration
-    console.debug(`waitFor: tries=${tries} timeUntilInt=${timeUntilInterval}`)
+    if (debug) console.debug(`waitFor: tries=${tries} timeUntilInt=${timeUntilInterval}`)
     if (timeUntilInterval > 0) {
-      console.debug(`waitFor: waiting ${timeUntilInterval}`)
+      if (debug) console.debug(`waitFor: waiting ${timeUntilInterval}`)
       await wait(timeUntilInterval)
     }
   }
   return res
 }
+export const waitFor = Object.assign(waitForMain, { NotReadyException })
+
 
 // Will return a promise of the same type that callback returns. Or you can specify the type
 // returned using syntax waitFor<string>(...). UNLESS, you specify throwsErrorOnBail = false;
-type WaitFor = {
+interface WaitForMain {
   <T extends any>(
     callback: () => T,
     options: {
