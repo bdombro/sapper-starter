@@ -4,3 +4,7 @@ export interface Post {
   likes: number
   html: string
 }
+
+export interface IndexData {
+  posts: Pick<Post, 'title'|'slug'|'likes'>[]
+}

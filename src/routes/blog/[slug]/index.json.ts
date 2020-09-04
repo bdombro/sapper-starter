@@ -4,7 +4,7 @@ import withCacheHandler from "../../../lib/withCacheHandler"
 
 export const get = withCacheHandler({
   bodyBuilder: async (req) => {
-    const post = posts.get(req.params.slug)
+    const post: IndexData['post'] = posts.get(req.params.slug)
     if (post) {
       const data: IndexData = { post }
       return [200, JSON.stringify(data)]
@@ -12,8 +12,9 @@ export const get = withCacheHandler({
     return [404, null]
   },
   isPublic: true,
-  maxLife: 20000,
-  staleWhenTtlLessThan: 15000,
+  maxLife: 30 * 60 * 1000,
+  staleWhenTtlLessThan: 15 * 60 * 1000,
+  browserCache: false,
 })
 
 export function patch(req, res) {

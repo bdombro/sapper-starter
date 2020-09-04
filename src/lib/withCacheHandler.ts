@@ -1,7 +1,7 @@
 import Etag from "etag"
 import { waitFor } from "./wait" // this is included with expressjs and is actually used by default when using res.json
 
-const debug = true
+const debug = false
 
 /**
  * A cache wrapper for API.GET endpoints
@@ -24,7 +24,7 @@ const withCacheHandler: WithCacheHandler = (
     maxLife = 5000,
     staleWhenTtlLessThan = 3000,
     isPublic = false,
-    browserCache = true,
+    browserCache = false,
   }
   : GetCacheHandlerOptions
 ) => {
@@ -54,8 +54,9 @@ const withCacheHandler: WithCacheHandler = (
 export default withCacheHandler
 
 /**
- * An in-memory cache. Ideal for low-scale apps, but you may consider a shared cache
- * for high-scale.
+ * An in-memory cache. Ideal for single-process apps, but you may consider a shared cache
+ * for multi-process because the app strategically clear cache entries based on user interactions.
+ * For example, "liking" a post should clear cache entries for all api endpoints that return likes.
  */
 class ResultCache {
   // garbageCollectorInterval: This number can be high b/c this.get checks expires
@@ -102,7 +103,10 @@ class ResultCache {
   }
   public releaseByUrl(url: CacheEntry['url']) {
     for (const entry of this.cache.values()) {
+      console.log(url)
+      console.log(entry.url)
       if (entry.url === url) {
+        console.log('match')
         this.release(entry)
       }
     }
@@ -231,7 +235,7 @@ interface GetCacheHandlerOptions {
   staleWhenTtlLessThan?: number
   // Allow requests without a matching ETag to use the cache. DONT do this if your page has any access-control/permissions
   isPublic?: boolean
-  // Whether to tell the browser to cache or not
+  // Whether to tell the browser to cache or not. Caution: If you set to true, the browser won't know if the cache changed until the browser cache expires.
   browserCache?: boolean
 }
 interface CacheEntry {

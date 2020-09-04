@@ -1,7 +1,8 @@
 <script context="module" lang="ts">
   import { getPageData } from "../../lib/ssrApi"
   export async function preload({ path }) {
-    return await getPageData(this, path)
+    const data = await getPageData(this, path)
+    return data
   }
 </script>
 
@@ -29,7 +30,7 @@
 				the user hovers over the link or taps it, instead of
 				waiting for the 'click' event -->
     <li>
-      <a rel="prefetch" href="blog/{post.slug}">{post.title}</a>
+      <a rel="prefetch" href="blog/{post.slug}">{post.title} ({post.likes} likes)</a>
     </li>
   {/each}
 </ul>
