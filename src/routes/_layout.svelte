@@ -1,7 +1,7 @@
 <script lang="ts">
   import { stores } from "@sapper/app"
   import Nav from "../components/Nav.svelte"
-  export const fullScreenPaths = new Set([])
+  export const fullScreenPaths = new Set(['/version'])
   export let segment: string
   export let page = stores().page
 </script>

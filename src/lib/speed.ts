@@ -29,7 +29,7 @@ export async function getSpeed() {
   if (start - lastUpdated < 30000) return last
   lock = true
   console.debug("getSpeed:Fetching...")
-  await fetch("/hello.txt")
+  await fetch("/version.json")
   const duration = Date.now() - start
   console.debug("getSpeed.duration: " + duration)
   let speed = 0 // slow-3g or worse
