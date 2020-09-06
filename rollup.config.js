@@ -6,8 +6,9 @@ import replace from "@rollup/plugin-replace"
 import svelte from "rollup-plugin-svelte"
 import typescript from "@rollup/plugin-typescript"
 import { terser } from "rollup-plugin-terser"
-import config from "sapper/config/rollup.js"
+import sapperConfig from "sapper/config/rollup.js"
 import sveltePreprocess from "svelte-preprocess"
+import envConfig from "config"
 import pkg from "./package.json"
 
 const mode = process.env.NODE_ENV
@@ -23,13 +24,14 @@ const onwarn = (warning, onwarn) =>
 
 export default {
   client: {
-    input: config.client.input().replace("js", "ts"),
-    output: config.client.output(),
+    input: sapperConfig.client.input().replace("js", "ts"),
+    output: sapperConfig.client.output(),
     plugins: [
       replace({
         "process.browser": true,
         "process.env.NODE_ENV": JSON.stringify(mode),
         "process.env.version": JSON.stringify(pkg.version),
+        "process.env.url": JSON.stringify(envConfig.get('url')),
       }),
       svelte({
         dev,
@@ -81,15 +83,16 @@ export default {
 
   server: {
     input: {
-      ...config.server.input(),
-      server: config.server.input().server.replace("js", "ts"),
+      ...sapperConfig.server.input(),
+      server: sapperConfig.server.input().server.replace("js", "ts"),
     },
-    output: config.server.output(),
+    output: sapperConfig.server.output(),
     plugins: [
       replace({
         "process.browser": false,
         "process.env.NODE_ENV": JSON.stringify(mode),
         "process.env.version": JSON.stringify(pkg.version),
+        "process.env.url": JSON.stringify(envConfig.get('url')),
       }),
       svelte({
         generate: "ssr",
@@ -115,14 +118,15 @@ export default {
   },
 
   serviceworker: {
-    input: config.serviceworker.input(),
-    output: config.serviceworker.output(),
+    input: sapperConfig.serviceworker.input(),
+    output: sapperConfig.serviceworker.output(),
     plugins: [
       resolve(),
       replace({
         "process.browser": true,
         "process.env.NODE_ENV": JSON.stringify(mode),
         "process.env.version": JSON.stringify(pkg.version),
+        "process.env.url": JSON.stringify(envConfig.get('url')),
       }),
       commonjs(),
       !dev && terser(),

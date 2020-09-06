@@ -4,6 +4,7 @@
 // var defer = require('config/defer').deferConfig;
 
 module.exports = {
+  url: "http://localhost:3000",
   db: {
     host: "localhost",
     user: "postgres",

@@ -1,14 +1,14 @@
 {
   "name": "TODO",
   "description": "TODO",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "scripts": {
     "dev": "sapper dev",
     "build": "NODE_ENV=production sapper build --legacy",
     "export": "NODE_ENV=production sapper export --legacy",
     "start": "node __sapper__/build",
     "deploy": "ssh sapper 'cd httpdocs; npm run pull'",
-    "pull": "git pull && npm i && npm run build && touch ../tmp/restart.txt",
+    "pull": "git pull && npm i && npm run build && touch ./tmp/restart.txt",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "test": "run-p --race dev cy:run",

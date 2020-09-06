@@ -4,6 +4,7 @@
 // var defer = require('config/defer').deferConfig;
 
 module.exports = {
+  url: "https://sapper.nosleeptilbeta.org",
   db: {
     host: "localhost",
     user: "postgres",
