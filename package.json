@@ -1,7 +1,7 @@
 {
   "name": "TODO",
   "description": "TODO",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "scripts": {
     "dev": "sapper dev",
     "build": "NODE_ENV=production sapper build --legacy",
@@ -20,9 +20,6 @@
     "hooks": {
       "pre-commit": "npm run validate && npm --no-git-tag-version version patch && git add package.json package-lock.json"
     }
-  },
-  "prettier": {
-    "semi": false
   },
   "browserslist": {
     "production": [
@@ -68,7 +65,6 @@
     "node-sass": "^4.14.1",
     "npm-run-all": "^4.1.5",
     "patch-package": "^6.2.2",
-    "prettier": "^2.1.1",
     "rambdax": "6.0.0",
     "rollup": "^2.3.4",
     "rollup-plugin-svelte": "^5.0.1",
