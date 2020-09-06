@@ -1,20 +1,14 @@
 import withCacheHandler from "../../lib/withCacheHandler"
 import posts from "./_posts"
 import type { IndexData } from "./_types"
-import { pipedAsync } from "rambdax"
+import { map, pick, pipedAsync } from "rambdax"
 
 export const get = withCacheHandler({
   bodyBuilder: async () => {
     const postsList: IndexData['posts'] = await pipedAsync(
       posts.values(),
       Array.from,
-      function format (posts) {
-        return posts.map((post) => {
-          const { title, slug, likes } = post
-          const listPost = { title, slug, likes }
-          return listPost
-        })
-      }
+      map(pick(['title', 'slug', 'likes']))
     );
     const result: IndexData = { posts: postsList }
     return [200, JSON.stringify(result)]
