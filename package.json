@@ -15,11 +15,11 @@
     "test": "run-p --race dev cy:run",
     "validate": "svelte-check",
     "playground": "ts-node-dev --respawn contrib/playground",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && husky install"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn validate && yarn version --patch",
+      "pre-commit": "yarn validate && yarn version --patch && git add package.json",
       "post-commit": "git reset"
     }
   },
