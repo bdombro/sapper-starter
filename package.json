@@ -1,7 +1,7 @@
 {
   "name": "Sapper-App-GT",
   "description": "TODO",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "scripts": {
     "upgrade-deps": "npx ncu -u && yarn && yarn upgrade",
     "dev": "sapper dev",
