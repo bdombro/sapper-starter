@@ -5,12 +5,13 @@ import { map, pick, pipedAsync } from "rambdax"
 
 export const get = withCacheHandler({
   bodyBuilder: async () => {
-    const postsList: IndexData['posts'] = await pipedAsync(
-      posts.values(),
-      Array.from,
-      map(pick(['title', 'slug', 'likes']))
-    );
-    const result: IndexData = { posts: postsList }
+    const result: IndexData = {
+      posts: await pipedAsync(
+        posts.values(),
+        Array.from,
+        map(pick(['title', 'slug', 'likes'])),
+      )
+    }
     return [200, JSON.stringify(result)]
   },
   isPublic: true,
