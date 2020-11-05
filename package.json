@@ -9,7 +9,7 @@
     "export": "NODE_ENV=production sapper export --legacy",
     "start": "node __sapper__/build",
     "deploy": "git push && ssh sapper 'cd httpdocs; yarn pull'",
-    "pull": "git pull && npm i && yarn build && touch ./tmp/restart.txt",
+    "pull": "git pull && yarn && yarn build && touch ./tmp/restart.txt",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "test": "run-p --race dev cy:run",
