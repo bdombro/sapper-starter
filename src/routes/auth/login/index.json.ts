@@ -1,13 +1,13 @@
-import jwt from "jsonwebtoken"
+import { tokenize, verify } from "../../../lib/crypto"
 import { getByUsername } from "../_users"
 import type { LoginCreds, Session } from "./_types"
 
-export function post(req, res) {
+export async function post(req, res) {
   const creds: LoginCreds = req.body
   const user = getByUsername(creds.username)
-  if (user?.password === creds.password) {
+  if (user && await verify(creds.password, user?.password)) {
     const auth: Session = { i: user.id, r: user.role }
-    res.cookie("auth", jwt.sign(auth, "shhhhhhared-secret"))
+    res.cookie("auth", tokenize(auth))
     res.status(200).json(auth)
   } else {
     res.clearCookie("auth")

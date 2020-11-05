@@ -1,10 +1,13 @@
 import type { User } from "./_types"
 
+export const testPassword = 'CoolPassword9';
+const testHash = '9b39911c178b3f399b5a8b4b2a57aee3f7c92de94ebadee6413e79ff977684dacb2542c1ebd631f824987bf7ae0ccf1212e0aa013b60b0efdbf5fff9737ff89c' // CoolPassword9
+
 export const adminUserAuth: User = {
   id: "coolid1",
   email: "admin@example.com",
   username: "admin",
-  password: "CoolPassword9",
+  password: testHash,
   givenName: "Admin",
   surname: "Foo",
   terms: `${Date.now()}`,
@@ -15,7 +18,7 @@ export const normalUserAuth: User = {
   id: "coolid2",
   email: "nancy@example.com",
   username: "nancyDrew",
-  password: "CoolPassword9",
+  password: testHash,
   givenName: "Nancy",
   surname: "Drew",
   terms: `${Date.now()}`,

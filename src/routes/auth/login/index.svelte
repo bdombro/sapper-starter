@@ -3,14 +3,14 @@
   import { goto, stores } from "@sapper/app"
   import api from "../../../lib/api"
   import Head from "../../../components/Head.svelte"
-  import { adminUserAuth } from "../_users"
+  import { adminUserAuth, testPassword } from "../_users"
   import type { LoginCreds, Session } from "./_types"
   export let session = stores().session
 
   async function login() {
     const creds: LoginCreds = {
       username: adminUserAuth.username,
-      password: adminUserAuth.password,
+      password: testPassword,
     }
     const res = await api.post(".", creds)
     if (res.ok) {

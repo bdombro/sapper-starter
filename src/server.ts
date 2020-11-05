@@ -4,8 +4,8 @@ import logger from "morgan"
 import compression from "compression"
 import cookies from "cookie-parser"
 import * as sapper from "@sapper/server"
-import expressJwt from "express-jwt"
 import ua from "express-useragent"
+import { jwtMiddleware } from "./lib/crypto"
 
 const { PORT, NODE_ENV } = process.env
 const dev = NODE_ENV === "development"
@@ -23,13 +23,7 @@ express() // You can also use polka, but it doesn't have as many helpful feature
     cookies(),
     logger("dev"),
     sirv("static", { dev }),
-    expressJwt({
-      secret: "shhhhhhared-secret",
-      requestProperty: "auth",
-      algorithms: ["HS256"],
-      credentialsRequired: false,
-      getToken: (req) => req.cookies.auth,
-    }),
+    jwtMiddleware,
     defaultHeaders,
     sapper.middleware({
       session: (req) => req.auth,
