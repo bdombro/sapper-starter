@@ -9,11 +9,10 @@
   export const fullScreenPaths = new Set([])
   export let segment: string
   export let page = stores().page
+
   let session = stores().session
-
-  let sessionSnackbar = false
-
-  session.subscribe(() => sessionSnackbar = true)
+  let sessionSnackbar = null
+  session.subscribe(() => sessionSnackbar = sessionSnackbar !== null)
 
   let theme: string
   themeStore.subscribe(themeNext => theme = themeNext)
