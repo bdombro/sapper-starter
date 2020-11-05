@@ -6,6 +6,7 @@
 </script>
 
 <script lang="ts">
+  import Button from 'svelte-materialify/src/components/Button';
   import api from "../../../lib/api"
   import Head from "../../../components/Head.svelte"
   import { goto, stores } from "@sapper/app"
@@ -17,7 +18,7 @@
     const res = await api.post("logout")
     if (res.ok) {
       session.set({})
-      goto("/auth/login")
+      goto("dashboard")
     } else alert(JSON.stringify(await res.json()))
   }
 </script>
@@ -40,4 +41,4 @@
 
 <pre>{JSON.stringify(user, null, 2)}</pre>
 
-<button on:click={logout}>Click to Logout</button>
+<Button on:click={logout}>Click to Logout</Button>

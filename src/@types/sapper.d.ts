@@ -8,9 +8,10 @@ declare module "@sapper/app" {
   export function stores(): {
     session: Session & {
       set: (next: Session) => Promise<void>
-      subscribe: () => (next: Session) => void
+      subscribe: (callback: (next: Session) => void) => void
     }
-    page: Page & { subscribe: () => (next: Session) => void }
+    // page: Page & { subscribe: () => (next: Session) => void }
+    page: Page & { subscribe: (callback: (next: Page) => void) => void }
     preloading: boolean
   }
   export function start({ target }: { target: HTMLAnchorElement }): unknown

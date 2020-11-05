@@ -6,6 +6,7 @@
 </script>
 
 <script lang="ts">
+  import Button from 'svelte-materialify/src/components/Button';
   import api from "../../../lib/api"
   import Head from "../../../components/Head.svelte"
   import type { IndexData } from "./_types"
@@ -64,8 +65,8 @@
   {@html post.html}
 </div>
 
-<button on:click={like}>
+<Button on:click={like}>
   {#if !post.likes}
     Like
   {:else if post.likes === 1}{post.likes} Like{:else}{post.likes} Likes{/if}
-</button>
+</Button>

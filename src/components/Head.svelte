@@ -15,7 +15,7 @@
   export let image: string = `https://${$page.host}/successkid.jpg`
   export let follow: boolean = true
 
-  $: titleDerived = title + " | Sapper App"
+  $: titleDerived = title + " | Sapper App GT"
   $: qs = Object.entries($page.query)
     .map(([k, v]) => `${k}=${v}`)
     .join("&")
