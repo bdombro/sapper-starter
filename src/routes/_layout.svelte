@@ -5,6 +5,7 @@
   import Snackbar from "svelte-materialify/src/components/Snackbar"
   import themeStore from "../theme"
   import NavDrawer from "../components/NavDrawer/NavDrawer.svelte"
+  import AppBar from "../components/AppBar/AppBar.svelte"
 
   export const fullScreenPaths = new Set([])
   export let segment: string
@@ -26,6 +27,9 @@
     overflow-y: scroll;
     display: flex;
     flex-direction: row;
+    main {
+      flex-grow: 2;
+    }
   }
 </style>
 
@@ -44,6 +48,8 @@
         {/if}
         <Button text on:click={() => sessionSnackbar = false}>Dismiss</Button>
       </Snackbar>
+
+      <AppBar />
 
       <slot />
     </main>

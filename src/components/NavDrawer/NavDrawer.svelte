@@ -1,6 +1,5 @@
 <script lang="ts">
   import { stores } from "@sapper/app"
-  import { onMount } from 'svelte';
   import {
     mdiAccount,
     mdiHomeCity,
@@ -22,30 +21,22 @@
 
   export let segment: string
   let mini = true
-  let toggled = false
-
-  onMount(() => {
-    toggled = window.innerWidth > 1000;
-  });
-
-  function mouseenter() {
-    mini = false
-  }
-
-  function mouseleave() {
-    mini = true
-  }
+  let toggled = true
 </script>
 
 <style lang="scss">
+  @import 'svelte-materialify/src/styles/variables';
   .outer {
-    width: 100px;
+    width: 56px; // the width of the mini drawer
     z-index: 1;
     height: 100vh;
 
+    @media (max-width: map-get($grid-breakpoints, 'md')) {
+      display: none;
+    }
+
     .inner {
       position: absolute;
-      width: 240px;
       height: 100vh;
 
       .flexed {
@@ -57,8 +48,7 @@
     }
 
     &.toggled {
-      width: auto;
-
+      width: 240px;
       .inner {
         position: relative;
       }
@@ -68,8 +58,8 @@
 
 <div class="outer {toggled && 'toggled'}">
   <div class="inner">
-    <NavigationDrawer mini={mini && !toggled}>
-      <div class="flexed" on:mouseenter={mouseenter} on:mouseleave={mouseleave}>
+    <NavigationDrawer mini={mini && !toggled} style="max-width: 240px">
+      <div class="flexed" on:mouseenter={()=>mini=false} on:mouseleave={()=>mini=true}>
         <div>
           <ListItem>
             <span slot="prepend" class="ml-n2">
