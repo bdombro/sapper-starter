@@ -40,8 +40,9 @@
 
       .menu-drawer {
         height: 0;
-        transition: height .4s ease-in-out;
         overflow: hidden;
+        background-color: var(--theme-surface);
+        box-sizing: border-box;
 
         &::-webkit-scrollbar {
           width: 14px; /* width of the entire scrollbar */
@@ -58,11 +59,10 @@
         }
 
         &.active {
+          border: 6px solid black;
           height: calc(100vh - 50px);
           overflow-y: auto;
         }
-
-        background-color: var(--theme-surface);
       }
     }
   }

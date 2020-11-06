@@ -4,7 +4,7 @@
   import MaterialApp from "svelte-materialify/src/components/MaterialApp"
   import Snackbar from "svelte-materialify/src/components/Snackbar"
   import themeStore from "../theme"
-  import NavDrawer from "../components/NavDrawer/NavDrawer.svelte"
+  import NavDrawer from "../components/Sidebar/Sidebar.svelte"
   import AppBar from "../components/AppBar/AppBar.svelte"
 
   export const fullScreenPaths = new Set([])
