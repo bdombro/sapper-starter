@@ -1,32 +1,33 @@
 <script>
-  import {
-    AppBar,
-    Button,
-    Icon,
-    NavigationDrawer,
-    Overlay,
-  } from 'svelte-materialify/src';
-  import { mdiMagnify, mdiMenu } from "@mdi/js"
+  import AppBar from "svelte-materialify/src/components/AppBar"
+  import Button from "svelte-materialify/src/components/Button"
+  import Icon from "svelte-materialify/src/components/Icon"
+  import Overlay from "svelte-materialify/src/components/Overlay"
+  import NavigationDrawer from "svelte-materialify/src/components/NavigationDrawer"
+  import { mdiMenu } from "@mdi/js"
 
   let active = false;
-  function toggleNavigation() {
-    active = !active;
-  }
 </script>
 
-<AppBar dense>
-  <div slot="icon">
-    <Button fab depressed on:click={toggleNavigation}>
+<style lang="scss">
+  @import 'svelte-materialify/src/styles/variables';
+  div {
+    @media (min-width: map-get($grid-breakpoints, 'md')) {
+      display: none;
+    }
+  }
+</style>
+
+<div>
+  <AppBar dense>
+    <span slot="title">Sapper App GT</span>
+    <div style="flex-grow:1" />
+    <Button>Nav Button</Button>
+    <Button fab depressed on:click={()=>active=!active}>
       <Icon path={mdiMenu} />
     </Button>
-  </div>
-  <span slot="title">Title</span>
-  <div style="flex-grow:1" />
-  <Button>Item</Button>
-  <Button fab depressed>
-    <Icon path={mdiMagnify} />
-  </Button>
-</AppBar>
+  </AppBar>
+</div>
 
-<NavigationDrawer absolute {active}>Content</NavigationDrawer>
-<Overlay {active} absolute on:click={toggleNavigation} index={1} />
+<NavigationDrawer absolute right {active}>Content</NavigationDrawer>
+<Overlay {active} absolute on:click={()=>active=!active} index={1} />

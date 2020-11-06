@@ -9,12 +9,14 @@
     mdiEye,
     mdiEyeOff
   } from "@mdi/js"
-  import NavigationDrawer from "svelte-materialify/src/components/NavigationDrawer"
-  import List from "svelte-materialify/src/components/List"
-  import ListItem from "svelte-materialify/src/components/List/ListItem.svelte"
+  import { onMount } from "svelte"
   import Avatar from "svelte-materialify/src/components/Avatar"
   import Divider from "svelte-materialify/src/components/Divider"
+  import List from "svelte-materialify/src/components/List"
+  import ListItem from "svelte-materialify/src/components/List/ListItem.svelte"
+  import NavigationDrawer from "svelte-materialify/src/components/NavigationDrawer"
   import themeStore from "../../theme"
+  import { isTouchable } from "../../lib/device"
   import NavListItem from "./ListItem.svelte"
 
   export let session = stores().session
@@ -22,10 +24,21 @@
   export let segment: string
   let mini = true
   let toggled = true
+
+  let hoverEnabled = false
+  onMount(() => hoverEnabled = !isTouchable());
+
+  function mouseEnter() {
+    if (hoverEnabled) mini = false
+  }
+  function mouseLeave() {
+    if (hoverEnabled) mini = true
+  }
 </script>
 
 <style lang="scss">
   @import 'svelte-materialify/src/styles/variables';
+
   .outer {
     width: 56px; // the width of the mini drawer
     z-index: 1;
@@ -49,6 +62,7 @@
 
     &.toggled {
       width: 240px;
+
       .inner {
         position: relative;
       }
@@ -59,7 +73,7 @@
 <div class="outer {toggled && 'toggled'}">
   <div class="inner">
     <NavigationDrawer mini={mini && !toggled} style="max-width: 240px">
-      <div class="flexed" on:mouseenter={()=>mini=false} on:mouseleave={()=>mini=true}>
+      <div class="flexed" on:mouseenter={mouseEnter} on:mouseleave={mouseLeave}>
         <div>
           <ListItem>
             <span slot="prepend" class="ml-n2">

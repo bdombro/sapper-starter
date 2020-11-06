@@ -22,19 +22,40 @@
 
 <style lang="scss">
   .theme-body {
-    height: 100vh;
-    overflow-x: hidden;
-    overflow-y: scroll;
     display: flex;
     flex-direction: row;
+
+    &.dark {
+      scrollbar-width: thin;          /* "auto" or "thin"  */
+      scrollbar-color: var(--theme-navigation-drawer) gray;   /* scroll thumb & track */
+
+      ::-webkit-scrollbar {
+        width: 14px; /* width of the entire scrollbar */
+      }
+
+      ::-webkit-scrollbar-track {
+        background: gray; /* color of the tracking area */
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: var(--theme-navigation-drawer); /* color of the scroll thumb */
+        border-radius: 20px; /* roundness of the scroll thumb */
+        border: 3px solid gray; /* creates padding around scroll thumb */
+      }
+    }
+
     main {
+      height: 100vh;
+      overflow-x: hidden;
+      overflow-y: scroll;
+
       flex-grow: 2;
     }
   }
 </style>
 
 <MaterialApp theme="{theme}">
-  <div class="theme-body">
+  <div class="theme-body {theme}">
     {#if !fullScreenPaths.has($page.path)}
       <NavDrawer {segment} />
     {/if}
