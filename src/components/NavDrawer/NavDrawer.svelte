@@ -17,20 +17,21 @@
   import NavigationDrawer from "svelte-materialify/src/components/NavigationDrawer"
   import themeStore from "../../theme"
   import { isTouchable } from "../../lib/device"
-  import NavListItem from "./ListItem.svelte"
-
-  export let session = stores().session
+  import NavListItem from "../NavListItem.svelte"
 
   export let segment: string
+
+  let session = stores().session
   let mini = true
   let toggled = true
 
   let hoverEnabled = false
-  onMount(() => hoverEnabled = !isTouchable());
+  onMount(() => hoverEnabled = !isTouchable())
 
   function mouseEnter() {
     if (hoverEnabled) mini = false
   }
+
   function mouseLeave() {
     if (hoverEnabled) mini = true
   }

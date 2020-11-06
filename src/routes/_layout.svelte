@@ -27,29 +27,29 @@
 
     &.dark {
       scrollbar-width: thin;          /* "auto" or "thin"  */
-      scrollbar-color: var(--theme-navigation-drawer) gray;   /* scroll thumb & track */
+      scrollbar-color: var(--theme-navigation-drawer) #707070;   /* scroll thumb & track */
 
       ::-webkit-scrollbar {
         width: 14px; /* width of the entire scrollbar */
       }
-
       ::-webkit-scrollbar-track {
-        background: gray; /* color of the tracking area */
+        background: var(--theme-navigation-drawer); /* color of the tracking area */
       }
-
       ::-webkit-scrollbar-thumb {
-        background-color: var(--theme-navigation-drawer); /* color of the scroll thumb */
+        background-color: #707070; /* color of the scroll thumb */
         border-radius: 20px; /* roundness of the scroll thumb */
-        border: 3px solid gray; /* creates padding around scroll thumb */
+        border: 3px solid var(--theme-navigation-drawer); /* creates padding around scroll thumb */
       }
     }
 
     main {
+      flex-grow: 2;
       height: 100vh;
       overflow-x: hidden;
-      overflow-y: scroll;
-
-      flex-grow: 2;
+      overflow-y: auto;
+      //@media (max-width: map-get($grid-breakpoints, 'md')) {
+      //  overflow-y: scroll;
+      //}
     }
   }
 </style>
@@ -70,7 +70,7 @@
         <Button text on:click={() => sessionSnackbar = false}>Dismiss</Button>
       </Snackbar>
 
-      <AppBar />
+      <AppBar {segment} />
 
       <slot />
     </main>
