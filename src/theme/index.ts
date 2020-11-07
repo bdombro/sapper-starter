@@ -1,3 +1,6 @@
 import { writable } from 'svelte/store'
 
-export default writable('dark')
+const store = writable('dark')
+// store.subscribe((next) => localStorage.setItem('themeStore', next));
+
+export default store;

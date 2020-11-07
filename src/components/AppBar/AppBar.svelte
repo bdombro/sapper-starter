@@ -6,13 +6,11 @@
     mdiInformationOutline,
     mdiNewspaperVariantOutline,
     mdiPalette,
-    mdiMenu
   } from "@mdi/js"
   import AppBar from "svelte-materialify/src/components/AppBar"
   import Avatar from "svelte-materialify/src/components/Avatar"
   import Button from "svelte-materialify/src/components/Button"
   import Divider from "svelte-materialify/src/components/Divider"
-  import Icon from "svelte-materialify/src/components/Icon"
   import List from "svelte-materialify/src/components/List"
   import themeStore from "../../theme"
   import NavListItem from "../NavListItem.svelte"
@@ -40,6 +38,7 @@
 
       .menu-drawer {
         height: 0;
+        transition: height .4s ease-in-out;
         overflow: hidden;
         background-color: var(--theme-surface);
         box-sizing: border-box;
@@ -59,7 +58,7 @@
         }
 
         &.active {
-          border: 6px solid black;
+          border-bottom: 6px solid black;
           height: calc(100vh - 50px);
           overflow-y: auto;
         }
@@ -71,6 +70,7 @@
 
 <div class="outer">
   <div class="inner">
+
     <AppBar dense>
       <span slot="title">
         <span class="ml-n2">
@@ -79,11 +79,13 @@
         Sapper App GT
       </span>
       <div style="flex-grow:1" />
-      <Button on:click={() => alert("Not implemented yet!")}>Join</Button>
-      <Button fab depressed on:click={()=>active=!active}>
-        <Icon path={mdiMenu} />
-      </Button>
+      {#if !active}
+        <Button on:click={()=>active=true} class="mr-2">Menu</Button>
+      {:else}
+        <Button on:click={()=>active=false} class="mr-2">Close</Button>
+      {/if}
     </AppBar>
+
     <div class="menu-drawer {active && 'active'}">
       <div on:click={()=>active=false}>
         <List dense nav>
