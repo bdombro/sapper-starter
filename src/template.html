@@ -2,16 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-  />
   <meta name="theme-color" content="#333333" />
+
+  <!--
+  Disable touch zooming ref: https://stackoverflow.com/questions/37808180/disable-viewport-zooming-ios-10-safari
+  Reason: Design should be accesible in the first place, and it's better for users to use text-size
+  features of browsers such as ⌘+ or ⌘-
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no, shrink-to-fit=no" />
+  <meta name="HandheldFriendly" content="true">
+  <script>
+    document.addEventListener('touchmove', function (event) {
+      if (event.scale !== 1) { event.preventDefault(); }
+    }, { passive: false });
+  </script>
 
   <style>
     html {
       width: 100%;
       overflow-x: hidden;
+      touch-action: none;
     }
   </style>
 
