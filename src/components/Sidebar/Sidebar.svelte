@@ -38,8 +38,7 @@
 </script>
 
 <style lang="scss">
-  @import 'svelte-materialify/src/styles/variables';
-
+  @import 'node_modules/svelte-materialify/src/styles/variables';
   .outer {
     width: 56px; // the width of the mini drawer
     z-index: 1;

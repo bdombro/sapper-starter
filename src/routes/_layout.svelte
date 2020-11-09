@@ -21,7 +21,6 @@
 
 
 <style lang="scss">
-  @import 'svelte-materialify/src/styles/variables';
   .theme-body {
     display: flex;
     flex-direction: row;
@@ -51,12 +50,6 @@
       max-height: stretch;
       overflow-x: hidden;
       overflow-y: auto;
-      //@media (max-width: map-get($grid-breakpoints, 'md')) {
-      //  height: auto;
-      //}
-      //min-height: 100vh;
-      /* mobile viewport bug fix */
-      //min-height: -webkit-fill-available;
     }
   }
 </style>

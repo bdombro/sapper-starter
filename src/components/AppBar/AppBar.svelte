@@ -22,7 +22,7 @@
 </script>
 
 <style lang="scss">
-  @import 'svelte-materialify/src/styles/variables';
+  @import 'node_modules/svelte-materialify/src/styles/variables';
 
   .outer {
     position: relative;
