@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Post {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  title     String
+  html      String
+  slug      String
+  likes     Int
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
+
+model User {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  roles     UserRole[]
+  password  String
+  givenName String
+  surname   String
+  // Get sizes by adding ?s=200
+  avatar    String   @default("https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50")
+  posts     Post[]
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  AUTHOR
+}
