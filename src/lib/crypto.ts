@@ -10,18 +10,14 @@ export async function hash(password: string): Promise<string> {
   return new Promise((resolve, reject) => {
     crypto.scrypt(password, salt, 64, (err, derivedKey) => {
       if (err) reject(err)
-      resolve(salt + ":" + derivedKey.toString("hex"))
+      resolve(derivedKey.toString("hex"))
     })
   })
 }
 
-export async function verify(password: string, hash: string): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    crypto.scrypt(password, salt, 64, (err, derivedKey) => {
-      if (err) reject(err)
-      resolve(hash == derivedKey.toString("hex"))
-    })
-  })
+export async function verify(password: string, hashToCheck: string): Promise<boolean> {
+  const hashExpected = await hash(password);
+  return hashToCheck === hashExpected
 }
 
 export function tokenize(obj: Record<string, any>) {
