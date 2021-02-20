@@ -1,7 +1,7 @@
+import { map, pick, pipedAsync } from "rambdax"
 import withCacheHandler from "../../lib/withCacheHandler"
 import posts from "./_posts"
 import type { IndexData } from "./_types"
-import { map, pick, pipedAsync } from "rambdax"
 
 export const get = withCacheHandler({
   bodyBuilder: async () => {

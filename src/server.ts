@@ -6,6 +6,8 @@ import cookies from "cookie-parser"
 import * as sapper from "@sapper/server"
 import ua from "express-useragent"
 import { jwtMiddleware } from "./lib/crypto"
+import db from "./lib/db"
+
 
 const { PORT, NODE_ENV } = process.env
 const dev = NODE_ENV === "development"
@@ -56,3 +58,6 @@ function handleExit(signal) {
 process.on('exit', handleExit);
 process.on('SIGINT', handleExit);
 process.on('SIGTERM', handleExit);
+
+
+db.post.findMany().then(p => console.dir);
